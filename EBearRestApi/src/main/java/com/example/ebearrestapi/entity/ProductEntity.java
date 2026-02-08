@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "PRODUCT", indexes = {
     @Index(name = "idx_category", columnList = "categoryNo"),
-    @Index(name = "idx_user", columnList = "userNo"),
+    @Index(name = "idx_product_user", columnList = "userNo"),
     @Index(name = "idx_reg_date", columnList = "regDate")
 })
 @Getter
