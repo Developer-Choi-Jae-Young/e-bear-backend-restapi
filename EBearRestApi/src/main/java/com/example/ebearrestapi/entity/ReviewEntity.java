@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "REVIEW", indexes = {
     @Index(name = "idx_product", columnList = "productNo"),
-    @Index(name = "idx_user", columnList = "userNo")
+    @Index(name = "idx_review_user", columnList = "userNo")
 })
 @Getter
 @Setter

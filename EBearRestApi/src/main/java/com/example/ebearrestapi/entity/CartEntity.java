@@ -2,6 +2,7 @@ package com.example.ebearrestapi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "CART")
@@ -11,7 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CartEntity {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartNo;
@@ -25,14 +25,9 @@ public class CartEntity {
     private UserEntity user;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productNo", nullable = false)
-    private ProductEntity product;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "productOptionNo")
     private ProductOptionEntity productOption;
-    
-    // 비즈니스 로직
+
     public void increaseQuantity(int amount) {
         this.quantity += amount;
     }
@@ -42,13 +37,5 @@ public class CartEntity {
         if (this.quantity < 1) {
             this.quantity = 1;
         }
-    }
-    
-    public Integer getTotalPrice() {
-        int basePrice = product.getDiscountedPrice();
-        if (productOption != null && productOption.getProductOptionPrice() != null) {
-            basePrice += productOption.getProductOptionPrice();
-        }
-        return basePrice * quantity;
     }
 }

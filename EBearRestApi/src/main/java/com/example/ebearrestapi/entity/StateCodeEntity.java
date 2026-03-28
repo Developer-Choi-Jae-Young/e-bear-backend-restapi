@@ -32,10 +32,6 @@ public class StateCodeEntity {
     
     @OneToMany(mappedBy = "stateCode")
     @Builder.Default
-    private List<OrderListEntity> orderList = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "stateCode")
-    @Builder.Default
     private List<PointEntity> pointList = new ArrayList<>();
     
     @OneToMany(mappedBy = "stateCode")
