@@ -44,6 +44,4 @@ public class PaymentEntity extends BaseEntity {
     
     @Column(nullable = false)
     private Integer paymentAmount;
-    
-
 }

@@ -51,10 +51,6 @@ public class ProductEntity extends BaseEntity {
     
     @OneToMany(mappedBy = "product")
     @Builder.Default
-    private List<CartEntity> cartList = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "product")
-    @Builder.Default
     private List<CurrentViewProductEntity> currentViewProductList = new ArrayList<>();
     
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)

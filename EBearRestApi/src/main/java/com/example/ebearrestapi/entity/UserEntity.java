@@ -75,10 +75,6 @@ public class UserEntity {
     
     @OneToMany(mappedBy = "user")
     @Builder.Default
-    private List<PaymentEntity> paymentList = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "user")
-    @Builder.Default
     private List<PointEntity> pointList = new ArrayList<>();
     
     @OneToMany(mappedBy = "user")
