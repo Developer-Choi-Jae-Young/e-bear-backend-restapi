@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.service;
 
+import com.example.ebearrestapi.dto.request.SignupDto;
 import com.example.ebearrestapi.entity.UserEntity;
 import com.example.ebearrestapi.repository.UserRepository;
 import com.example.ebearrestapi.vo.UserDetail;

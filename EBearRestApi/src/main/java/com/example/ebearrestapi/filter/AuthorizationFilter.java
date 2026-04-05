@@ -21,6 +21,14 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String uri = request.getRequestURI();
+
+        if (uri.equals("/signup")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         log.info("Authorization Filter");
         String jwt = jwtToken.resolveToken(request);
 
