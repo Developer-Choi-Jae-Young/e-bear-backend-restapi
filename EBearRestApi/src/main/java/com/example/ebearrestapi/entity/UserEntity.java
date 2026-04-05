@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.entity;
 
+import com.example.ebearrestapi.dto.request.SignupDto;
 import com.example.ebearrestapi.etc.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "`USER`")
+@Table(name = "USERS")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -110,3 +111,5 @@ public class UserEntity {
         return role == Role.SELLER;
     }
 }
+
+

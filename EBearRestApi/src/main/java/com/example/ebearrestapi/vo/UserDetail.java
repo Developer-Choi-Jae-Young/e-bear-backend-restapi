@@ -24,12 +24,12 @@ public class UserDetail implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return isEnabled();
+        return true;
     }
 
     @Override
@@ -39,11 +39,11 @@ public class UserDetail implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return user.getUserId();
     }
 }

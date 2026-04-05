@@ -98,6 +98,9 @@ public class JwtToken {
     public String resolveToken(HttpServletRequest request)
     {
         String returnValue = request.getHeader(JwtProperties.HEADER_ACCESS_STRING);
+        if (returnValue != null && returnValue.startsWith(JwtProperties.TOKEN_PREFIX)) {
+            return returnValue.substring(JwtProperties.TOKEN_PREFIX.length()).trim();
+        }
         return returnValue;
     }
 }
