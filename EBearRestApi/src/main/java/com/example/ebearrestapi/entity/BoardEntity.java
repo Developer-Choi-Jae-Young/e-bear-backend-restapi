@@ -29,11 +29,14 @@ public class BoardEntity extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Integer viewCnt = 0;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @Builder.Default
+    private String delYN = "N";
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "userNo", nullable = false)
     private UserEntity user;
-    
+
     @OneToMany(mappedBy = "board")
     @Builder.Default
     private List<EventEntity> eventList = new ArrayList<>();
@@ -53,6 +56,7 @@ public class BoardEntity extends BaseEntity {
     @OneToMany(mappedBy = "board")
     @Builder.Default
     private List<ReviewEntity> reviewList = new ArrayList<>();
+
     
     // 비즈니스 로직
     public void increaseViewCount() {
