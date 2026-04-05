@@ -53,7 +53,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.addAllowedOriginPattern("*"); // 모든 오리진 허용 (운영 환경에선 특정 주소만 넣는걸 추천)
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
@@ -85,5 +85,4 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = daoAuthenticationProvider();//DaoAuthenticationProvider 사용
         return new ProviderManager(provider);
     }
-
 }
