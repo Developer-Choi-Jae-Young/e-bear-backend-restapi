@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.utils;
 
+import com.example.ebearrestapi.service.UserDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -26,12 +29,13 @@ public class JwtToken {
 
     protected final String secret;
     protected final long tokenValidityInMilliseconds;
-
+    private UserDetailService userDetailService;
     protected Key key;
 
-    public JwtToken(String secret, long tokenValidityInSeconds) {
+    public JwtToken(String secret, long tokenValidityInSeconds, UserDetailService userDetailService) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.userDetailService = userDetailService;
 
         //시크릿 값을 decode해서 키 변수에 할당
         byte[] keyBytes = Decoders.BASE64.decode(secret);
@@ -70,9 +74,10 @@ public class JwtToken {
                         .collect(Collectors.toList());
 
         // 디비를 거치지 않고 토큰에서 값을 꺼내 바로 시큐리티 유저 객체를 만들어 Authentication을 만들어 반환하기에 유저네임, 권한 외 정보는 알 수 없다.
-        User principal = new User(claims.getSubject(), "", authorities);
+        String userId = claims.getSubject();
+        UserDetails userDetails = userDetailService.loadUserByUsername(userId);
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 
     // 토큰 유효성 검사
