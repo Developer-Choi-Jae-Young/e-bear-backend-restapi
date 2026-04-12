@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOptionDto {
-    private Long productOptionId;
-    private String productOptionName;
-    private String productOptionValue;
-    private Integer productPrice;
-    private int quantity;
+public class CategorySaveDto {
+    private String categoryName;
+    private Long parentId;
 }

@@ -9,10 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOptionDto {
+public class OrderProductOptionDto {
     private Long productOptionId;
     private String productOptionName;
     private String productOptionValue;
     private Integer productPrice;
     private int quantity;
+    private int couponId;
 }

@@ -18,11 +18,4 @@ public class ConsultaionEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long consultationNo;
-    
-    @Column(length = 200)
-    private String title;
-    
-    @OneToMany(mappedBy = "consultation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<MessageEntity> messageList = new ArrayList<>();
 }

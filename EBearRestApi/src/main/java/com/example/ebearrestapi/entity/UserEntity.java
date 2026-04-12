@@ -46,6 +46,10 @@ public class UserEntity {
     @Builder.Default
     private Role role = Role.USER;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fileNo")
+    private FileEntity file;
+
     @OneToMany(mappedBy = "user")
     @Builder.Default
     private List<AlarmEntity> alarmList = new ArrayList<>();

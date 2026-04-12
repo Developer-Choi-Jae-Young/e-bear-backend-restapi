@@ -18,6 +18,8 @@ public class ProductOptionEntity {
     
     @Column(nullable = false, length = 100)
     private String productOptionName;
+
+    private String productOptionValue;
     
     private Integer productOptionPrice;
     

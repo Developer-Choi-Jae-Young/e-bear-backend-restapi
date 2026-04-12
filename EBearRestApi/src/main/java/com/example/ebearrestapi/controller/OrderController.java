@@ -4,13 +4,12 @@ import com.example.ebearrestapi.dto.request.OrderDto;
 import com.example.ebearrestapi.dto.response.OrderSaveResultDto;
 import com.example.ebearrestapi.dto.response.OrderSelectListResultDto;
 import com.example.ebearrestapi.service.OrderService;
-import com.example.ebearrestapi.vo.UserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +21,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveOrder(@RequestBody OrderDto orderDto, @AuthenticationPrincipal UserDetail userDetail) {
-        OrderSaveResultDto orderSaveResultDto = orderService.saveOrder(orderDto, userDetail);
+    public ResponseEntity<?> saveOrder(@RequestBody OrderDto orderDto, @AuthenticationPrincipal User user) {
+        OrderSaveResultDto orderSaveResultDto = orderService.saveOrder(orderDto, user);
         return ResponseEntity.status(HttpStatus.OK).body(orderSaveResultDto);
     }
 
