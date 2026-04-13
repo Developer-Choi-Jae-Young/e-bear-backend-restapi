@@ -84,6 +84,7 @@ public class ProductService {
                 .productStatus(productSaveDto.getProductStatus())
                 .category(category)
                 .board(board)
+                .user(newUser)
                 .build();
 
         ProductEntity newProduct = productRepository.save(product);

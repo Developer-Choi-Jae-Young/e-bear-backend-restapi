@@ -23,24 +23,29 @@ public class CategoryService {
 
     @Transactional
     public CategorySaveResultDto save(CategorySaveDto categorySaveDto) {
-        CategoryEntity parentCategory = categoryRepository.findById(categorySaveDto.getParentId()).orElseThrow(() -> new RuntimeException("parent category not found"));
+        CategoryEntity parentCategory = null;
+
+        if (categorySaveDto.getParentId() != null) {
+            parentCategory = categoryRepository.findById(categorySaveDto.getParentId())
+                    .orElseThrow(() -> new RuntimeException("parent category not found"));
+        }
+
         CategoryEntity category = CategoryEntity.builder().categoryName(categorySaveDto.getCategoryName()).parent(parentCategory).build();
         CategoryEntity newCategory = categoryRepository.save(category);
 
-        return CategorySaveResultDto.builder()
-                .categoryName(newCategory.getCategoryName())
-                .categoryName(newCategory.getCategoryName())
-                .parentCategory(ParentCategory.from(newCategory.getParent()))
-                .build();
+        return CategorySaveResultDto.of(newCategory);
     }
 
-    public List<CategoryListResultDto> listCategory(Pageable pageable) {
+    public List<CategoryListResultDto> listCategoryPage(Pageable pageable) {
         Page<CategoryEntity> categoryList = categoryRepository.findAllByChildrenListIsEmpty(pageable);
 
-        return categoryList.map(data -> CategoryListResultDto.builder()
-                        .categoryName(data.getCategoryName())
-                        .parentCategory(ParentCategory.from(data.getParent()))
-                        .build()).getContent();
+        return categoryList.map(CategoryListResultDto::of).getContent();
+    }
+
+    public List<CategoryListResultDto> listCategory() {
+        List<CategoryEntity> categoryList = categoryRepository.findAllByParentIsNull();
+
+        return categoryList.stream().map(CategoryListResultDto::of).toList();
     }
 
     @Transactional

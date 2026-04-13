@@ -16,10 +16,10 @@ public class ParentCategory {
     private ParentCategory parentCategory;
 
     public static ParentCategory from(CategoryEntity category) {
-        return ParentCategory.builder()
+        return category != null ? ParentCategory.builder()
                 .categoryId(category.getCategoryNo())
                 .categoryName(category.getCategoryName())
                 .parentCategory(from(category.getParent()))
-                .build();
+                .build() : null;
     }
 }

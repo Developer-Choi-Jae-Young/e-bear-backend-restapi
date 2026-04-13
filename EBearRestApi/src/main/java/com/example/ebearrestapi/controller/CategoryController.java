@@ -27,8 +27,8 @@ public class CategoryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listCategory(Pageable pageable) {
-        List<CategoryListResultDto> categoryListResult = categoryService.listCategory(pageable);
+    public ResponseEntity<?> listCategory() {
+        List<CategoryListResultDto> categoryListResult = categoryService.listCategory();
         return ResponseEntity.status(HttpStatus.OK).body(categoryListResult);
     }
 
