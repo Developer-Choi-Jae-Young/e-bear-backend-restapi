@@ -43,4 +43,15 @@ public class OrderPaymentEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userNo", nullable = false)
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paymentNo")
+    private PaymentEntity payment;
+
+    public void updateDeliveryInfo(String address, String tel, String email, String deliveryRequired) {
+        this.deliveryRequired = deliveryRequired;
+        this.email = email;
+        this.deliveryAddr = address;
+        this.tel = tel;
+    }
 }

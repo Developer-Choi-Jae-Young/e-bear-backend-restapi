@@ -12,6 +12,7 @@ public class PaymentDto {
     private String orderId;      // 생성 시점부터 존재
     private PaymentStatus status; // 결제 상태 (READY -> DONE)
     private PaymentType type;     // 결제 수단 (CARD 등)
-    private LocalDateTime approvedAt;
-    private Integer paymentAmount;
+    private LocalDateTime approvedAt;   //결제 완료 일시
+    private Integer paymentAmount;      //최종 결제 금액
+    private Integer usePoint;           //임시 사용 포인트
 }
