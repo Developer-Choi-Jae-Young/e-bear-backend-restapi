@@ -16,6 +16,7 @@ public class ReviewProductResult {
     private Long reviewId;
     private Integer reviewPoint;
     private String reviewContent;
+    private String reviewTitle;
     private String reviewer;
     private String imgUrl;
     private LocalDate regDttm;
@@ -24,9 +25,10 @@ public class ReviewProductResult {
         return ReviewProductResult.builder()
                 .reviewId(reviewEntity.getReviewNo())
                 .reviewPoint(reviewEntity.getRating())
+                .reviewTitle(reviewEntity.getBoard().getTitle())
                 .reviewContent(reviewEntity.getBoard().getContent())
                 .reviewer(reviewEntity.getUser().getUserName())
-                .imgUrl(reviewEntity.getUser().getFile().getFileLocation() + reviewEntity.getUser().getFile().getSaveFileName())
+                .imgUrl(reviewEntity.getUser().getFile() == null ? null : reviewEntity.getUser().getFile().getFileLocation() + reviewEntity.getUser().getFile().getSaveFileName())
                 .regDttm(reviewEntity.getRegDate().toLocalDate())
                 .build();
     }

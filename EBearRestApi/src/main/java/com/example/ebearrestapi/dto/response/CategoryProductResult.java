@@ -19,7 +19,7 @@ public class CategoryProductResult {
         return CategoryProductResult.builder()
                 .categoryId(category.getCategoryNo())
                 .categoryName(category.getCategoryName())
-                .child(from(category.getParent()))
+                .child(category.getParent() == null ? null : from(category.getParent()))
                 .build();
     }
 }
