@@ -19,9 +19,6 @@ public class InquiryEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long inquiryNo;
     
-    @Column(columnDefinition = "TEXT")
-    private String content;
-    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stateCodeNo")
     private StateCodeEntity stateCode;
@@ -41,10 +38,6 @@ public class InquiryEntity extends BaseEntity {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<InquiryEntity> childrenList = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "inquiry")
-    @Builder.Default
-    private List<MessageRoomEntity> messageRoomList = new ArrayList<>();
     
     // 비즈니스 로직
     public void addReply(InquiryEntity reply) {

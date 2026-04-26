@@ -20,12 +20,8 @@ public class ReviewEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewNo;
-    
-    @Column(precision = 2, scale = 1)
-    private BigDecimal rating;
-    
-    @Column(columnDefinition = "TEXT")
-    private String content;
+
+    private Integer rating;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userNo", nullable = false)

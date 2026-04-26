@@ -7,11 +7,11 @@ import com.example.ebearrestapi.dto.response.ProductOptionDto;
 import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.OrderStatus;
 import com.example.ebearrestapi.repository.*;
-import com.example.ebearrestapi.vo.UserDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +27,18 @@ public class OrderService {
     private final MyCouponRepository myCouponRepository;
     private final PaymentRepository paymentRepository;
     private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public OrderSaveResultDto saveOrder(OrderDto orderDto, UserDetail userDetail) {
+    public OrderSaveResultDto saveOrder(OrderDto orderDto, User user) {
+        UserEntity newUser = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
+
         OrderPaymentEntity newOrderPayment = orderPaymentRepository.save(OrderPaymentEntity.builder()
                 .orderStatus(OrderStatus.PAYMENT_WAIT)
                 .deliveryAddr(orderDto.getAddress())
                 .tel(orderDto.getTel())
                 .email(orderDto.getEmail())
-                .user(userDetail.getUser())
+                .user(newUser)
                 .deliveryRequired(orderDto.getDeliveryRequired()).build());
 
         orderDto.getProductOptionList().forEach(productOption -> {
@@ -43,7 +46,7 @@ public class OrderService {
             ProductOptionEntity productOptionEntity = productOptionRepository.findById(productOption.getProductOptionId()).orElseThrow(() -> new RuntimeException("Product Option Not Found"));
             productOptionEntity.decreaseProductOptionQuantity(quantity);
 
-            MyCouponEntity myCoupon = myCouponRepository.findById(productOption.getCouponNo()).orElseThrow(() -> new RuntimeException("Coupon Not Found"));
+            MyCouponEntity myCoupon = myCouponRepository.findById(productOption.getCouponId()).orElseThrow(() -> new RuntimeException("Coupon Not Found"));
             OrderItemEntity newOrderItem = orderItemRepository.save(OrderItemEntity.builder()
                     .orderPayment(newOrderPayment)
                     .productOption(productOptionEntity)
@@ -64,7 +67,8 @@ public class OrderService {
         return orderPayments.stream().map(orderPayment -> {
             List<OrderItemEntity> orderItems = orderItemRepository.findByOrderPayment(orderPayment);
             List<ProductOptionDto> productOptionDtos = orderItems.stream().map(item -> {
-                Long reviewId = reviewRepository.findByProduct(item.getProductOption().getProduct()).map(ReviewEntity::getReviewNo).orElse(null);
+                Long reviewId = reviewRepository.findByProduct(item.getProductOption().getProduct())
+                        .stream().map(ReviewEntity::getReviewNo).findFirst().orElse(null);
 
                 return ProductOptionDto.builder()
                         .productOptionId(item.getProductOption().getProductOptionNo())

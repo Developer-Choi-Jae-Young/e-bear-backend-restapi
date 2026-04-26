@@ -16,7 +16,6 @@ import java.util.List;
 public class StateCodeEntity {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long stateCodeNo;
     
     @Column(nullable = false, unique = true, length = 50)
