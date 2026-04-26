@@ -17,7 +17,7 @@ import java.util.List;
 public class EtcController {
     private final EtcService etcService;
 
-    @GetMapping("/proudct/state/list")
+    @GetMapping("/product/state/list")
     public ResponseEntity<?> productStateList() {
         List<ProductStateResultDto> productStateResult = etcService.productStateList();
         return ResponseEntity.status(HttpStatus.OK).body(productStateResult);

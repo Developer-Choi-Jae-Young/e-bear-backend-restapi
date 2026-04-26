@@ -56,8 +56,10 @@ public class ProductController {
          return ResponseEntity.status(HttpStatus.CREATED).body(productSaveResult);
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<?> updateProduct(@RequestBody ProductUpdateDto productUpdateDto) {
+    @PostMapping(value = "/update", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<?> updateProduct(@RequestPart("productUpdateDto") ProductUpdateDto productUpdateDto
+                                            , @RequestPart(value = "files", required = false) List<MultipartFile> files
+                                            , @AuthenticationPrincipal User user) {
         ProductUpdateResultDto productUpdateResult = productService.updateProduct(productUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).body(productUpdateResult);
     }
