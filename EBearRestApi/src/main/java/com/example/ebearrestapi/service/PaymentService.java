@@ -247,11 +247,21 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("해당 주문을 찾을 수 없습니다."));
 
         // 현재 상태가 READY인 경우에만 ABORTED로 변경
-        // 이미 DONE으로 끝난 정상 결제인데 지연된 웹훅이 와서 덮어씌우는 것 방지
+        // 이미 DONE으로 끝난 정상 결제인데 지연된 웹훅이 와서 덮어씌우는 것 방지(중복 처리 방지)
         if (payment.getPaymentStatus() == PaymentStatus.READY) {
             payment.setPaymentStatus(PaymentStatus.ABORTED);
 
-            // TODO: 롤백 부분으로 여기서 미리 빼두었던 상품 재고를 다시 +1 해주는 로직 실행
+            // 상품 재고를 롤백(차감) 로직 실행
+            OrderPaymentEntity orderPayment = payment.getOrderPaymentList().get(0);
+            List<OrderItemEntity> orderItems = orderItemRepository.findByOrderPayment(orderPayment);
+
+            for (OrderItemEntity item : orderItems) {
+                ProductOptionEntity productOption = item.getProductOption();
+                int rollbackQuantity = item.getQuantity();
+
+                // 차감했던 수량만큼 다시 더해줌
+                productOption.increaseProductOptionQuantity(rollbackQuantity);
+            }
         }
     }
 }
