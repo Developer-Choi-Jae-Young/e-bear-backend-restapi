@@ -81,7 +81,8 @@ public class OrderService {
             }).toList();
 
             String representativeName = orderItems.isEmpty() ? "상품 정보 없음" : orderItems.get(0).getProductOption().getProduct().getProductName();
-            PaymentEntity paymentEntity = paymentRepository.findByOrderPayment(orderPayment).orElseThrow(() -> new RuntimeException("OrderPayment not found"));
+            PaymentEntity paymentEntity = paymentRepository.findByOrderPaymentList_OrderPaymentId(orderPayment.getOrderPaymentId())
+                    .orElseThrow(() -> new RuntimeException("해당 주문에 매핑된 결제 내역을 찾을 수 없습니다."));
 
             return OrderSelectListResultDto.builder()
                     .paymentId(paymentEntity.getPaymentNo())
