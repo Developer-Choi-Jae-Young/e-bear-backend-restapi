@@ -65,10 +65,12 @@ public class NotificationService {
         return result;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public NotificationDetailDto detail(Long notificationNo) {
         NotificationEntity notification = notificationRepository.findDetailByNotificationNo(notificationNo).orElseThrow(() -> new RuntimeException("공지사항이 존재하지 않습니다."));
         BoardEntity board = notification.getBoard();
+
+        board.setViewCnt(board.getViewCnt() + 1);
 
         return new NotificationDetailDto(
                 notification.getNotificationNo(),
@@ -78,5 +80,14 @@ public class NotificationService {
                 board.getViewCnt(),
                 board.getContent()
         );
+    }
+
+    @Transactional
+    public void update(Long notificationNo, BoardDto boardDto) {
+        NotificationEntity notification = notificationRepository.findById(notificationNo).orElseThrow(() -> new RuntimeException("공지사항이 존재하지 않습니다."));
+        BoardEntity board = notification.getBoard();
+
+        board.setTitle(boardDto.getTitle());
+        board.setContent(boardDto.getContent());
     }
 }
