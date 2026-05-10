@@ -6,6 +6,7 @@ import com.example.ebearrestapi.dto.response.OrderSelectListResultDto;
 import com.example.ebearrestapi.dto.response.ProductOptionDto;
 import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.OrderStatus;
+import com.example.ebearrestapi.etc.PaymentStatus;
 import com.example.ebearrestapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
