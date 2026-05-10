@@ -51,8 +51,8 @@ public class PaymentEntity extends BaseEntity {
     // 사용자가 실제 가지고 있는 쿠폰인지 확인
     @Column
     private Long usedCouponId;
-    
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<OrderPaymentEntity> orderPaymentList = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderPaymentId") // DB의 외래키 컬럼명
+    private OrderPaymentEntity orderPayment;
 }

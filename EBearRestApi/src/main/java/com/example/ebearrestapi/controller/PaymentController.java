@@ -24,13 +24,8 @@ public class PaymentController {
     @PostMapping("/ready")
     public ResponseEntity<?> readyOrder(@RequestBody PaymentDto paymentDto,
                                         @AuthenticationPrincipal UserDto userDto) {
-
-        // TODO: 묶여있던 상품 재고를 -1 시키는 로직 작성 필요
-        // TODO:=> 상태 변경은 웹훅 사용 시?? 필요 (결제 도중 오류 등)
-        // TODO:=> 또한 상품 id 등을 가져와 db에서 직접 가격 조회 후 저장해야함 (데이터 변조 대비)
-        String orderId = paymentService.readyPayment(paymentDto);
-
-        return ResponseEntity.ok(Map.of("orderId", orderId));
+        paymentService.readyPayment(paymentDto);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/confirm")

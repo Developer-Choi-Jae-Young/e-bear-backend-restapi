@@ -36,7 +36,7 @@ public class PaymentService {
     private final PointRepository pointRepository;
     private final StateCodeService stateCodeService;
 
-    public String readyPayment(PaymentDto paymentDto) {
+    public void readyPayment(PaymentDto paymentDto) {
         Long opId = paymentDto.getOrderPaymentId();
 
         // 리액트에서 보낸 paymentAmount는 무시하고, DB에서 직접 계산
@@ -76,17 +76,15 @@ public class PaymentService {
                 .paymentType(paymentDto.getType())              //결제수단
                 .usedPoint(usePoint)                            //임시 포인트 가격(나중에 사용자가 가지고 있는 포인트랑 검증 예정)
                 // .usedCouponId(null)                          // TODO: 쿠폰 ID 세팅
-                .orderPaymentList(new ArrayList<>())            // 연관된 주문 리스트 초기화
+                .orderPayment(orderPayment)                     // 연관된 주문 초기화
                 .build();
 
         // 양방향 연관관계 매핑
-        payment.getOrderPaymentList().add(orderPayment); // Payment -> OrderPayment 추가
-        orderPayment.setPayment(payment);                // OrderPayment -> Payment 연결 (실제 DB FK 생성)
+        orderPayment.getPaymentList().add(payment);
 
         // 결제 상태 ready인 결제 객체 저장
         paymentRepository.save(payment);
 
-        return String.valueOf(opId);
     }
 
     @Transactional
@@ -94,7 +92,7 @@ public class PaymentService {
         Long opId = Long.valueOf(paymentConfirmDto.getOrderId());
 
         // DB 주문 찾기
-        PaymentEntity payment = paymentRepository.findByOrderPaymentList_OrderPaymentId(opId)
+        PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
                 .orElseThrow(() -> new RuntimeException("{\"code\":\"NOT_FOUND\", \"message\":\"주문 내역을 찾을 수 없습니다.\"}"));
 
         // 금액 검증 (위조 방지)
@@ -132,7 +130,7 @@ public class PaymentService {
             // 상태값에 따른 분기 처리
             // 신용카드, 간편결제 등 즉시 완료
             if ("DONE".equals(tossStatus)) {
-                OrderPaymentEntity orderPayment = payment.getOrderPaymentList().get(0);
+                OrderPaymentEntity orderPayment = payment.getOrderPayment();
                 Long userNo = orderPayment.getUser().getUserNo();
 
                 // 포인트 사용 금액이 있을 경우에만 실행
@@ -167,7 +165,7 @@ public class PaymentService {
                     if (myCoupon != null) {
                         if (!myCoupon.getUser().getUserNo().equals(userNo)) {
                             cancelTossPayment(paymentConfirmDto.getPaymentKey(), "쿠폰 소유자 불일치");
-                            throw new RuntimeException("이미 사용 완료된 쿠폰이 포한되어 결제가 취소되었습니다.");
+                            throw new RuntimeException("본인 소유의 쿠폰이 아니므로 결제가 자동 취소되었습니다.");
                         }
                     }
                     if (myCoupon.isUsed()) {
@@ -226,7 +224,7 @@ public class PaymentService {
     public Map<String, Object> getPaymentDetails(String orderPaymentId) {
         Long opId = Long.valueOf(orderPaymentId);
 
-        PaymentEntity payment = paymentRepository.findByOrderPaymentList_OrderPaymentId(opId)
+        PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
                 .orElseThrow(() -> new RuntimeException("해당 주문을 찾을 수 없습니다."));
 
         Map<String, Object> details = new HashMap<>();
@@ -243,25 +241,13 @@ public class PaymentService {
     public void handleAbortedWebhook(String orderId) {
         Long opId = Long.valueOf(orderId);
         // orderId로 주문 내역 찾음
-        PaymentEntity payment = paymentRepository.findByOrderPaymentList_OrderPaymentId(opId)
+        PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
                 .orElseThrow(() -> new RuntimeException("해당 주문을 찾을 수 없습니다."));
 
         // 현재 상태가 READY인 경우에만 ABORTED로 변경
         // 이미 DONE으로 끝난 정상 결제인데 지연된 웹훅이 와서 덮어씌우는 것 방지(중복 처리 방지)
         if (payment.getPaymentStatus() == PaymentStatus.READY) {
             payment.setPaymentStatus(PaymentStatus.ABORTED);
-
-            // 상품 재고를 롤백(차감) 로직 실행
-            OrderPaymentEntity orderPayment = payment.getOrderPaymentList().get(0);
-            List<OrderItemEntity> orderItems = orderItemRepository.findByOrderPayment(orderPayment);
-
-            for (OrderItemEntity item : orderItems) {
-                ProductOptionEntity productOption = item.getProductOption();
-                int rollbackQuantity = item.getQuantity();
-
-                // 차감했던 수량만큼 다시 더해줌
-                productOption.increaseProductOptionQuantity(rollbackQuantity);
-            }
         }
     }
 }

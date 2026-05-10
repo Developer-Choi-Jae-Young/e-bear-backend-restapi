@@ -6,6 +6,7 @@ import com.example.ebearrestapi.dto.response.OrderSelectListResultDto;
 import com.example.ebearrestapi.dto.response.ProductOptionDto;
 import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.OrderStatus;
+import com.example.ebearrestapi.etc.PaymentStatus;
 import com.example.ebearrestapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -81,7 +82,7 @@ public class OrderService {
             }).toList();
 
             String representativeName = orderItems.isEmpty() ? "상품 정보 없음" : orderItems.get(0).getProductOption().getProduct().getProductName();
-            PaymentEntity paymentEntity = paymentRepository.findByOrderPaymentList_OrderPaymentId(orderPayment.getOrderPaymentId())
+            PaymentEntity paymentEntity = paymentRepository.findByOrderPayment_OrderPaymentId(orderPayment.getOrderPaymentId())
                     .orElseThrow(() -> new RuntimeException("해당 주문에 매핑된 결제 내역을 찾을 수 없습니다."));
 
             return OrderSelectListResultDto.builder()
@@ -95,22 +96,33 @@ public class OrderService {
         }).toList();
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 60000) //1분
     @Transactional
     public void cleanupOrphanOrders() {
-        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(15);
+        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(15); //15분
 
-        List<OrderPaymentEntity> expiredOrders = orderPaymentRepository
-                .findAllByOrderStatusAndCreatedAtBefore(OrderStatus.PAYMENT_WAIT, expirationTime);
+        List<PaymentStatus> failedStatuses = List.of(
+                PaymentStatus.ABORTED,
+                PaymentStatus.CANCELED,
+                PaymentStatus.EXPIRED
+        );
 
-        if (expiredOrders.isEmpty()) return;
+        List<OrderPaymentEntity> targetOrders = orderPaymentRepository.findOrphanOrFailedOrders(
+                OrderStatus.PAYMENT_WAIT,
+                expirationTime,
+                failedStatuses
+        );
 
-        for (OrderPaymentEntity order : expiredOrders) {
+        if (targetOrders.isEmpty()) return;
+
+        for (OrderPaymentEntity order : targetOrders) {
+            // 재고 복구 로직
             orderItemRepository.findByOrderPayment(order).forEach(orderItem -> {
                 ProductOptionEntity option = orderItem.getProductOption();
                 option.increaseProductOptionQuantity(orderItem.getQuantity());
             });
 
+            // 주문 상태 변경 및 삭제 표시
             order.setOrderStatus(OrderStatus.CANCEL);
             order.setDelYn(true);
         }

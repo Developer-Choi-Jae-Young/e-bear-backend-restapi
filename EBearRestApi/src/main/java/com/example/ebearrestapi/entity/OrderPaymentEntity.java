@@ -44,9 +44,9 @@ public class OrderPaymentEntity {
     @JoinColumn(name = "userNo", nullable = false)
     private UserEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paymentNo")
-    private PaymentEntity payment;
+    @OneToMany(mappedBy = "orderPayment", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<PaymentEntity> paymentList = new ArrayList<>();
 
     public void updateDeliveryInfo(String address, String tel, String email, String deliveryRequired) {
         this.deliveryRequired = deliveryRequired;
