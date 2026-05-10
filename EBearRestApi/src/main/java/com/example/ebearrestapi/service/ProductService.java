@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.service;
 
+import com.example.ebearrestapi.dto.request.ProductDeleteDto;
 import com.example.ebearrestapi.dto.request.ProductOptionDto;
 import com.example.ebearrestapi.dto.request.ProductSaveDto;
 import com.example.ebearrestapi.dto.request.ProductUpdateDto;
@@ -30,8 +31,13 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public List<ProductListResultDto> listProduct(Pageable pageable) {
-        Page<ProductEntity> productList = productRepository.findAll(pageable);
+    public List<ProductListResultDto> listProduct(Pageable pageable, User user, String type, String kw) {
+        UserEntity userEntity = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        String searchType = (type == null || type.isEmpty()) ? "all" : type;
+        String keyword = (kw == null) ? "" : kw;
+
+        Page<ProductEntity> productList = productRepository.searchWithFilter(userEntity, searchType, keyword, pageable);
         return productList.map(data -> ProductListResultDto.builder()
                 .productId(data.getProductNo())
                 .productName(data.getProductName())
@@ -149,5 +155,15 @@ public class ProductService {
                 .title(product.getBoard().getTitle())
                 .content(product.getBoard().getContent())
                 .productOptions(productoptionList.stream().map(data -> ProductOptionDto.builder().productOptionId(data.getProductOptionNo()).productOptionName(data.getProductOptionName()).productOptionValue(data.getProductOptionValue()).productPrice(data.getProductOptionPrice()).quantity(data.getProductOptionQuantity()).build()).toList()).build();
+    }
+
+    @Transactional
+    public void deleteProduct(ProductDeleteDto productDeleteDto) {
+        Long[] productIds = productDeleteDto.getKey();
+
+        for(Long productId : productIds){
+            ProductEntity product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
+            product.getBoard().setDelYN("Y");
+        }
     }
 }

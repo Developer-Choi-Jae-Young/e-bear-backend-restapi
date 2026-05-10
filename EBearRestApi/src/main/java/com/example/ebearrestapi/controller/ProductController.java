@@ -1,11 +1,13 @@
 package com.example.ebearrestapi.controller;
 
+import com.example.ebearrestapi.dto.request.ProductDeleteDto;
 import com.example.ebearrestapi.dto.request.ProductSaveDto;
 import com.example.ebearrestapi.dto.request.ProductUpdateDto;
 import com.example.ebearrestapi.dto.response.*;
 import com.example.ebearrestapi.service.FileService;
 import com.example.ebearrestapi.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,13 +23,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/product")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
     private final ProductService productService;
     private final FileService fileService;
 
     @GetMapping("/list")
-    public ResponseEntity<?> listProduct(Pageable pageable) {
-        List<ProductListResultDto> productList = productService.listProduct(pageable);
+    public ResponseEntity<?> listProduct(Pageable pageable,
+                                         @RequestParam(value = "type", required = false) String type,
+                                         @RequestParam(value = "keyword", required = false) String keyword,
+                                         @AuthenticationPrincipal User user) {
+        List<ProductListResultDto> productList = productService.listProduct(pageable, user, type, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
 
@@ -62,5 +68,11 @@ public class ProductController {
                                             , @AuthenticationPrincipal User user) {
         ProductUpdateResultDto productUpdateResult = productService.updateProduct(productUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).body(productUpdateResult);
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteProduct(@RequestBody ProductDeleteDto productDeleteDto) {
+        productService.deleteProduct(productDeleteDto);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
