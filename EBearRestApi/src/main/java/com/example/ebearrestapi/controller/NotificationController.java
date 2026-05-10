@@ -36,4 +36,9 @@ public class NotificationController {
     public NotificationDetailDto detail(@PathVariable Long notificationNo) {
         return notificationService.detail(notificationNo);
     }
+
+    @PutMapping("/update/{notificationNo}")
+    public void update(@PathVariable Long notificationNo, @RequestBody BoardDto boardDto) {
+        notificationService.update(notificationNo, boardDto);
+    }
 }
