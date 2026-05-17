@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.dto.response;
 
+import com.example.ebearrestapi.etc.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,9 @@ public class ProductDetailResult {
     private String content;
     private String seller;
     private String sellerImg;
+    private Integer deliveryPrice;
+    private Integer deliveryDays;
+    private ProductStatus productStatus;
     private CategoryProductResult category;
     private List<ProductOptionResult> productOptions;
     private List<ReviewProductResult> reviews;
