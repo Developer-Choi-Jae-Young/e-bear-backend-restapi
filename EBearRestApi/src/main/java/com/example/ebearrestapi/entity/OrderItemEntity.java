@@ -23,9 +23,9 @@ public class OrderItemEntity {
     @JoinColumn(name = "productOptionNo")
     private ProductOptionEntity productOption;
 
+    private Integer quantity;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "myCouponNo")
     private MyCouponEntity myCoupon;
-
-    private Integer quantity;
 }

@@ -14,4 +14,5 @@ public class NotificationDetailDto {
     private LocalDateTime regDt;
     private Integer viewCnt;
     private String content;
+    private boolean isAdmin;
 }

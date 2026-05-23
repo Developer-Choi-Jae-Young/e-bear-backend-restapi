@@ -24,8 +24,8 @@ public class MessageRoomEntity extends BaseEntity {
     private List<MessageEntity> messageList = new ArrayList<>();
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inquiryNo")
-    private InquiryEntity inquiry;
+    @JoinColumn(name = "consultationNo")
+    private ConsultaionEntity consultaion;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userNo", nullable = false)

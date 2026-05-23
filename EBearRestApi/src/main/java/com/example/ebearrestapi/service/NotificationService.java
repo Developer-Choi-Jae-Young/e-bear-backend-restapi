@@ -3,15 +3,13 @@ package com.example.ebearrestapi.service;
 import com.example.ebearrestapi.dto.request.BoardDto;
 import com.example.ebearrestapi.dto.response.NotificationDetailDto;
 import com.example.ebearrestapi.dto.response.NotificationDto;
+import com.example.ebearrestapi.dto.response.NotificationListResponseDto;
 import com.example.ebearrestapi.entity.BoardEntity;
 import com.example.ebearrestapi.entity.NotificationEntity;
 import com.example.ebearrestapi.entity.UserEntity;
 import com.example.ebearrestapi.repository.NotificationRepository;
 import com.example.ebearrestapi.repository.UserRepository;
-import com.example.ebearrestapi.vo.UserDetail;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
-    private final BoardService boardService;
     private final UserRepository userRepository;
 
     @Transactional
@@ -47,9 +44,9 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<NotificationDto> list() {
+    public NotificationListResponseDto list(User user) {
         List<NotificationEntity> notificationEntityList = notificationRepository.findByBoard_DelYNOrderByNotificationNoDesc("N");
-        List<NotificationDto> result = new ArrayList<>();
+        List<NotificationDto> notifications = new ArrayList<>();
 
         for (NotificationEntity notificationEntity : notificationEntityList) {
             BoardEntity boardEntity = notificationEntity.getBoard();
@@ -60,15 +57,18 @@ public class NotificationService {
                     boardEntity.getRegDate(),
                     boardEntity.getViewCnt()
             );
-            result.add(notificationDto);
+            notifications.add(notificationDto);
         }
-        return result;
+        return new NotificationListResponseDto(notifications, isAdmin(user));
     }
 
-    @Transactional(readOnly = true)
-    public NotificationDetailDto detail(Long notificationNo) {
+
+    @Transactional
+    public NotificationDetailDto detail(Long notificationNo, User user) {
         NotificationEntity notification = notificationRepository.findDetailByNotificationNo(notificationNo).orElseThrow(() -> new RuntimeException("공지사항이 존재하지 않습니다."));
         BoardEntity board = notification.getBoard();
+
+        board.setViewCnt(board.getViewCnt() + 1);
 
         return new NotificationDetailDto(
                 notification.getNotificationNo(),
@@ -76,7 +76,27 @@ public class NotificationService {
                 board.getUser().getUserName(),
                 board.getRegDate(),
                 board.getViewCnt(),
-                board.getContent()
+                board.getContent(),
+                isAdmin(user)
         );
+    }
+
+    @Transactional
+    public void update(Long notificationNo, BoardDto boardDto) {
+        NotificationEntity notification = notificationRepository.findById(notificationNo).orElseThrow(() -> new RuntimeException("공지사항이 존재하지 않습니다."));
+        BoardEntity board = notification.getBoard();
+
+        board.setTitle(boardDto.getTitle());
+        board.setContent(boardDto.getContent());
+    }
+
+    private boolean isAdmin(User user) {
+        if (user == null) {
+            return false;
+        }
+
+        UserEntity userEntity = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return userEntity.isAdmin();
     }
 }
