@@ -2,118 +2,274 @@ package com.example.ebearrestapi.service;
 
 import com.example.ebearrestapi.dto.request.PaymentConfirmDto;
 import com.example.ebearrestapi.dto.request.PaymentDto;
-import com.example.ebearrestapi.entity.PaymentEntity;
+import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.PaymentStatus;
-import com.example.ebearrestapi.repository.PaymentRepository;
+import com.example.ebearrestapi.etc.PaymentType;
+import com.example.ebearrestapi.repository.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PaymentServiceTest {
+class PaymentServiceTest {
 
-    @Mock
-    private PaymentRepository paymentRepository;
-    @Mock
-    private RestTemplate restTemplate;
     @InjectMocks
     private PaymentService paymentService;
 
-    @Test
-    @DisplayName("결제 준비(ready) 성공 테스트")
-    void readyPayment_Success() {
-        // given (준비)
-        PaymentDto dto = new PaymentDto();
-        dto.setPaymentAmount(50000);
+    @Mock private PaymentRepository paymentRepository;
+    @Mock private RestTemplate restTemplate;
+    @Mock private UserRepository userRepository;
+    @Mock private OrderPaymentRepository orderPaymentRepository;
+    @Mock private OrderItemRepository orderItemRepository;
+    @Mock private PointRepository pointRepository;
+    @Mock private StateCodeService stateCodeService;
 
-        PaymentEntity savedEntity = PaymentEntity.builder()
-                .orderId("test-order-id-123")
-                .paymentAmount(50000)
+    private UserEntity mockUser;
+    private OrderPaymentEntity mockOrderPayment;
+    private PaymentEntity mockPayment;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(paymentService, "secretKey", "test_secret_key");
+
+        mockUser = UserEntity.builder()
+                .userNo(1L)
                 .build();
 
-        // save하면 savedEntity를 반환
-        when(paymentRepository.save(any(PaymentEntity.class))).thenReturn(savedEntity);
+        mockOrderPayment = OrderPaymentEntity.builder()
+                .orderPaymentId(1L)
+                .user(mockUser)
+                .paymentList(new ArrayList<>())
+                .build();
 
-        // when (실행)
-        String orderId = paymentService.readyPayment(dto);
-
-        // then (검증)
-        assertNotNull(orderId);
-        assertEquals("test-order-id-123", orderId);
-        verify(paymentRepository, times(1)).save(any(PaymentEntity.class)); // save가 1번 호출되었는지 확인
-    }
-
-    @Test
-    @DisplayName("결제 승인(confirm) 성공 테스트")
-    void confirmPayment_Success() {
-        // given (준비)
-        PaymentConfirmDto confirmDto = new PaymentConfirmDto();
-        confirmDto.setOrderId("test-order-id-123");
-        confirmDto.setPaymentKey("test-payment-key");
-        confirmDto.setAmount(50000);
-
-        // DB에 저장되어 있던 결제 대기 상태의 데이터
-        PaymentEntity existingPayment = PaymentEntity.builder()
-                .orderId("test-order-id-123")
-                .paymentAmount(50000)
+        mockPayment = PaymentEntity.builder()
+                .paymentNo(1L)
+                .paymentAmount(10000)
                 .paymentStatus(PaymentStatus.READY)
+                .paymentType(PaymentType.CARD)
+                .orderPayment(mockOrderPayment)
+                .usedPoint(0)
                 .build();
-
-        // 주문번호로 찾으면 existingPayment 반환
-        when(paymentRepository.findByOrderId("test-order-id-123")).thenReturn(Optional.of(existingPayment));
-
-        // 토스 서버가 200 OK를 반환한다고 가정
-        ResponseEntity<String> mockResponse = new ResponseEntity<>("{\"status\":\"DONE\"}", HttpStatus.OK);
-        when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
-                .thenReturn(mockResponse);
-
-        // when (실행)
-        Object result = paymentService.confirmPayment(confirmDto);
-
-        // then (검증)
-        assertEquals("success", result);
-        assertEquals(PaymentStatus.DONE, existingPayment.getPaymentStatus()); // 상태가 DONE으로 바뀌었는지 확인
-        assertEquals("test-payment-key", existingPayment.getPaymentKey());
     }
 
     @Test
-    @DisplayName("결제 승인 실패 - 금액 위조 발생 시 예외 발생")
+    @DisplayName("readyPayment 성공 케이스: 결제 정보 생성 및 저장")
+    void readyPayment_Success() {
+        // given
+        PaymentDto paymentDto = new PaymentDto();
+        paymentDto.setOrderPaymentId(1L);
+        paymentDto.setType(PaymentType.CARD);
+        paymentDto.setUsePoint(1000);
+
+        ProductOptionEntity option = ProductOptionEntity.builder()
+                .productOptionPrice(5000) //하나의 5000원
+                .build();
+        OrderItemEntity item = OrderItemEntity.builder()
+                .productOption(option)
+                .quantity(2) // 개수가 2개
+                .build();
+
+        when(orderPaymentRepository.findById(1L)).thenReturn(Optional.of(mockOrderPayment));
+        when(orderItemRepository.findByOrderPayment(mockOrderPayment)).thenReturn(List.of(item));
+
+        // when
+        paymentService.readyPayment(paymentDto);
+
+        // then
+        // 물품 가격(5000*2) - 포인트(1000) = 결재금액(9100)
+        verify(paymentRepository, times(1)).save(argThat(payment -> 
+            payment.getPaymentAmount() == 9100 &&
+            payment.getPaymentStatus() == PaymentStatus.READY &&
+            payment.getPaymentType() == PaymentType.CARD &&
+            payment.getUsedPoint() == 1000
+        ));
+
+        assertEquals(1, mockOrderPayment.getPaymentList().size());
+    }
+
+    @Test
+    @DisplayName("readyPayment 실패 케이스: 주문 정보 없음")
+    void readyPayment_Fail_OrderNotFound() {
+        // given
+        PaymentDto paymentDto = new PaymentDto();
+        paymentDto.setOrderPaymentId(99L); //이런 주문id 없음
+        when(orderPaymentRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // when & then
+        // 없으니 runtime 에러 나는지 확인
+        assertThrows(RuntimeException.class, () -> paymentService.readyPayment(paymentDto));
+    }
+
+    @Test
+    @DisplayName("confirmPayment 성공 케이스: 일반 결제")
+    void confirmPayment_Success() throws JsonProcessingException {
+        // given
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(10000);
+        dto.setPaymentKey("toss_key_123");
+
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+
+        String tossResponseJson = "{\"status\": \"DONE\"}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(tossResponseJson, HttpStatus.OK));
+
+        when(orderItemRepository.findByOrderPayment(any())).thenReturn(new ArrayList<>());
+
+        // when
+        Object result = paymentService.confirmPayment(dto);
+
+        // then
+        assertEquals("success", result);
+        assertEquals(PaymentStatus.DONE, mockPayment.getPaymentStatus());
+        assertEquals("toss_key_123", mockPayment.getPaymentKey());
+        assertNotNull(mockPayment.getApprovedAt());
+    }
+
+    @Test
+    @DisplayName("confirmPayment 실패 케이스: 금액 조작")
     void confirmPayment_Fail_ForgedAmount() {
         // given
-        PaymentConfirmDto confirmDto = new PaymentConfirmDto();
-        confirmDto.setOrderId("test-order-id-123");
-        confirmDto.setAmount(100); // 프론트엔드에서 조작된 금액 (100원)
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(5000); // 임시엔 10000원임
 
-        // DB에는 5만원으로 기록되어 있음
-        PaymentEntity existingPayment = PaymentEntity.builder()
-                .orderId("test-order-id-123")
-                .paymentAmount(50000)
-                .build();
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
 
-        when(paymentRepository.findByOrderId("test-order-id-123")).thenReturn(Optional.of(existingPayment));
+        // when & then
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> paymentService.confirmPayment(dto));
+        assertTrue(ex.getMessage().contains("FORGED_AMOUNT"));
+    }
 
-        // when & then (실행 및 예외 검증)
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            paymentService.confirmPayment(confirmDto);
-        });
+    @Test
+    @DisplayName("confirmPayment 실패 케이스: 포인트 잔액 부족 및 토스 결제 취소")
+    void confirmPayment_Fail_LackOfPoint() {
+        // given
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(10000);
+        dto.setPaymentKey("toss_key_123");
 
-        // 예외 메시지가 정확히 던져졌는지 확인
-        assertTrue(exception.getMessage().contains("FORGED_AMOUNT"));
+        mockPayment.setUsedPoint(5000);
+
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
+
+        when(userRepository.findByUserNoWithLock(1L)).thenReturn(Optional.of(mockUser));
+        when(pointRepository.sumUseAmountByUserNo(1L)).thenReturn(3000); // 임시유저엔 3000포인트 줌
+
+        // when & then
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> paymentService.confirmPayment(dto));
+        assertTrue(ex.getMessage().contains("포인트가 부족하여"));
+        
+        // 취소 API 호출 확인
+        verify(restTemplate, times(1)).postForEntity(contains("/cancel"), any(), eq(String.class));
+    }
+
+    @Test
+    @DisplayName("confirmPayment 실패 케이스: 남의 쿠폰 사용 시도")
+    void confirmPayment_Fail_InvalidCouponOwner() {
+        // given
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(10000);
+        dto.setPaymentKey("toss_key_123");
+
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
+
+        UserEntity otherUser = UserEntity.builder().userNo(99L).build();
+        MyCouponEntity coupon = MyCouponEntity.builder().user(otherUser).isUsed(false).build();
+        OrderItemEntity item = OrderItemEntity.builder().myCoupon(coupon).build();
+
+        when(orderItemRepository.findByOrderPayment(any())).thenReturn(List.of(item));
+
+        // when & then
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> paymentService.confirmPayment(dto));
+        assertTrue(ex.getMessage().contains("본인 소유의 쿠폰이 아니므로"));
+        verify(restTemplate, times(1)).postForEntity(contains("/cancel"), any(), eq(String.class));
+    }
+
+    @Test
+    @DisplayName("confirmPayment 실패 케이스: 이미 사용된 쿠폰")
+    void confirmPayment_Fail_CouponAlreadyUsed() {
+        // given
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(10000);
+        dto.setPaymentKey("toss_key_123");
+
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
+
+        MyCouponEntity coupon = MyCouponEntity.builder().user(mockUser).isUsed(true).build();
+        OrderItemEntity item = OrderItemEntity.builder().myCoupon(coupon).build();
+
+        when(orderItemRepository.findByOrderPayment(any())).thenReturn(List.of(item));
+
+        // when & then
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> paymentService.confirmPayment(dto));
+        assertTrue(ex.getMessage().contains("이미 사용 완료된 쿠폰"));
+        verify(restTemplate, times(1)).postForEntity(contains("/cancel"), any(), eq(String.class));
+    }
+
+    @Test
+    @DisplayName("confirmPayment 실패 케이스: 토스 API 에러 (HttpStatusCodeException)")
+    void confirmPayment_Fail_TossApiError() {
+        // given
+        PaymentConfirmDto dto = new PaymentConfirmDto();
+        dto.setOrderId("1");
+        dto.setAmount(10000);
+
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid Key", "{\"message\":\"error\"}".getBytes(), null));
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> paymentService.confirmPayment(dto));
+        assertEquals(PaymentStatus.ABORTED, mockPayment.getPaymentStatus());
+    }
+
+    @Test
+    @DisplayName("handleAbortedWebhook 성공 케이스: READY 상태인 경우 재고 롤백")
+    void handleAbortedWebhook_Success_Rollback() {
+        // given
+        mockPayment.setPaymentStatus(PaymentStatus.READY);
+        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+
+        ProductOptionEntity option = mock(ProductOptionEntity.class);
+        OrderItemEntity item = OrderItemEntity.builder().productOption(option).quantity(5).build();
+        when(orderItemRepository.findByOrderPayment(any())).thenReturn(List.of(item));
+
+        // when
+        paymentService.handleAbortedWebhook("1");
+
+        // then
+        assertEquals(PaymentStatus.ABORTED, mockPayment.getPaymentStatus());
+        verify(option, times(1)).increaseProductOptionQuantity(5);
     }
 
 }
