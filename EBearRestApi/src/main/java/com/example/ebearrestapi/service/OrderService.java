@@ -1,9 +1,8 @@
 package com.example.ebearrestapi.service;
 
 import com.example.ebearrestapi.dto.request.OrderDto;
-import com.example.ebearrestapi.dto.response.OrderSaveResultDto;
-import com.example.ebearrestapi.dto.response.OrderSelectListResultDto;
-import com.example.ebearrestapi.dto.response.ProductOptionDto;
+import com.example.ebearrestapi.dto.request.OrderSaveReqDto;
+import com.example.ebearrestapi.dto.response.*;
 import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.OrderStatus;
 import com.example.ebearrestapi.etc.PaymentStatus;
@@ -14,10 +13,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,44 @@ public class OrderService {
     private final UserRepository userRepository;
 
     @Transactional
-    public OrderSaveResultDto saveOrder(OrderDto orderDto, User user) {
+    public OrderSaveResultDto saveOrder(OrderSaveReqDto orderDto, User user) {
+        Long generatedOrderItemNo = createNewOrderItemNo();
+        UserEntity newUser = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<OrderItemEntity> savedOrderItems = orderDto.getProductOptionList().stream().map(productOption -> {
+            int quantity = productOption.getOptionCount();
+            ProductOptionEntity productOptionEntity = productOptionRepository.findById(productOption.getProductOptionId()).orElseThrow(() -> new RuntimeException("Product Option Not Found"));
+
+            return orderItemRepository.save(OrderItemEntity.builder()
+                    .orderItemNo(generatedOrderItemNo)
+                    .orderPayment(null)
+                    .productOption(productOptionEntity)
+                    .user(newUser)
+                    .quantity(quantity).build());
+        }).toList();
+
+        if (savedOrderItems.isEmpty()) {
+            throw new RuntimeException("저장할 주문 상품이 없습니다.");
+        }
+
+        long distinctCount = savedOrderItems.stream()
+                .map(OrderItemEntity::getOrderItemNo)
+                .distinct()
+                .count();
+
+        if (distinctCount > 1) {
+            throw new RuntimeException("주문 상품들의 orderItemNo가 일치하지 않습니다.");
+        }
+
+        Long validOrderItemNo = savedOrderItems.get(0).getOrderItemNo();
+
+        return OrderSaveResultDto.builder()
+                .orderItemId(validOrderItemNo)
+                .build();
+    }
+
+    @Transactional
+    public OrderResultDto updateOrder(OrderDto orderDto, User user) {
         UserEntity newUser = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
 
         OrderPaymentEntity newOrderPayment = orderPaymentRepository.save(OrderPaymentEntity.builder()
@@ -40,26 +80,76 @@ public class OrderService {
                 .tel(orderDto.getTel())
                 .email(orderDto.getEmail())
                 .user(newUser)
-                .deliveryRequired(orderDto.getDeliveryRequired()).build());
+                .deliveryRequired(orderDto.getDeliveryRequired())
+                .build());
 
-        orderDto.getProductOptionList().forEach(productOption -> {
-            int quantity = productOption.getQuantity();
-            ProductOptionEntity productOptionEntity = productOptionRepository.findById(productOption.getProductOptionId()).orElseThrow(() -> new RuntimeException("Product Option Not Found"));
-            productOptionEntity.decreaseProductOptionQuantity(quantity);
+        List<OrderItemEntity> orderItems = orderItemRepository.findAllByOrderItemNo(orderDto.getOrderId());
 
-            MyCouponEntity myCoupon = myCouponRepository.findById(productOption.getCouponId()).orElseThrow(() -> new RuntimeException("Coupon Not Found"));
-            OrderItemEntity newOrderItem = orderItemRepository.save(OrderItemEntity.builder()
-                    .orderPayment(newOrderPayment)
-                    .productOption(productOptionEntity)
-                    .myCoupon(myCoupon)
-                    .quantity(quantity).build());
-        });
+        if (orderItems.isEmpty()) {
+            throw new RuntimeException("주문 상품을 찾을 수 없습니다.");
+        }
 
-        return OrderSaveResultDto.builder().orderPaymentId(newOrderPayment.getOrderPaymentId()).build();
+        for (OrderItemEntity item : orderItems) {
+            item.setOrderPayment(newOrderPayment);
+
+            ProductOptionEntity productOption = item.getProductOption();
+            productOption.decreaseProductOptionQuantity(item.getQuantity());
+        }
+
+        return OrderResultDto.builder()
+                .orderPaymentId(newOrderPayment.getOrderPaymentId())
+                .build();
     }
 
-    public OrderPaymentEntity selectOrder(Long orderPaymentId) {
-        return orderPaymentRepository.findById(orderPaymentId).orElseThrow(() -> new RuntimeException("OrderPaymentId not found"));
+    public OrderSelectResultDto selectOrder(Long orderItemNo) {
+        List<OrderItemEntity> orderItems = orderItemRepository.findAllByOrderItemNo(orderItemNo);
+
+        if (orderItems.isEmpty()) {
+            throw new RuntimeException("해당 주문번호의 상품을 찾을 수 없습니다.");
+        }
+
+        List<ProductOptionResultDto> productOptionResultDtoList = orderItems.stream()
+                .map(orderItemEntity -> {
+                    ProductOptionEntity productOption = orderItemEntity.getProductOption();
+
+                    return ProductOptionResultDto.builder()
+                            .productOptionId(productOption.getProductOptionNo())
+                            .productOptionName(productOption.getProductOptionName())
+                            .productName(productOption.getProduct().getProductName())
+                            .quantity(orderItemEntity.getQuantity())
+                            .price(productOption.getProductOptionPrice())
+                            .couponNo(orderItemEntity.getMyCoupon() != null ? orderItemEntity.getMyCoupon().getMyCouponId() : null)
+                            .seller(orderItemEntity.getUser().getUserNo())
+                            .build();
+                })
+                .toList();
+
+        OrderPaymentEntity orderPaymentEntity = orderItems.get(0).getOrderPayment();
+
+        String address = null;
+        String phone = null;
+        String email = null;
+        String deliveryRequired = null;
+        OrderStatus orderStatus = null;
+
+        if (orderPaymentEntity != null) {
+             address = orderPaymentEntity.getDeliveryAddr();
+             phone = orderPaymentEntity.getTel();
+             email = orderPaymentEntity.getEmail();
+             deliveryRequired = orderPaymentEntity.getDeliveryRequired();
+             orderStatus = orderPaymentEntity.getOrderStatus();
+        }
+
+        return OrderSelectResultDto.builder()
+                .orderItemId(orderItemNo)
+                .address(address)
+                .phone(phone)
+                .email(email)
+                .deliveryRequired(deliveryRequired)
+                .orderStatus(orderStatus)
+                .point(0)
+                .productOptions(productOptionResultDtoList)
+                .build();
     }
 
     public List<OrderSelectListResultDto> selectList(Pageable pageable) {
@@ -114,5 +204,9 @@ public class OrderService {
             order.setOrderStatus(OrderStatus.CANCEL);
             order.setDelYn(true);
         }
+    }
+
+    private Long createNewOrderItemNo() {
+        return UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
     }
 }

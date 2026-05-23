@@ -10,15 +10,17 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@IdClass(OrderItemId.class)
 public class OrderItemEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderItemNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orderPaymentId")
     private OrderPaymentEntity orderPayment;
 
+    @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "productOptionNo")
     private ProductOptionEntity productOption;
@@ -28,4 +30,8 @@ public class OrderItemEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "myCouponNo")
     private MyCouponEntity myCoupon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userNo")
+    private UserEntity user;
 }
