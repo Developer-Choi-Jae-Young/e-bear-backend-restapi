@@ -28,6 +28,8 @@ public class CartEntity {
     @JoinColumn(name = "productOptionNo")
     private ProductOptionEntity productOption;
 
+    private String delYn;
+
     public void increaseQuantity(int amount) {
         this.quantity += amount;
     }

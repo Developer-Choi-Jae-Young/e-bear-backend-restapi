@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/actuator/**", "/auth/**", "/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html", "/h2-console/**", "/signup", "/login","/auth/**","/email/**", "/notification/**", "/product/**", "/file/**", "/category/**", "/etc/**").permitAll()
+                        .requestMatchers("/actuator/**", "/auth/**", "/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html", "/h2-console/**", "/signup", "/login","/auth/**","/email/**", "/notification/**", "/product/**", "/file/**", "/category/**", "/etc/**", "/cart/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
