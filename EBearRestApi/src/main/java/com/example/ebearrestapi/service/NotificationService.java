@@ -14,6 +14,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,5 +100,34 @@ public class NotificationService {
         UserEntity userEntity = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         return userEntity.isAdmin();
+    }
+
+    @Transactional(readOnly = true)
+    public NotificationListResponseDto search(String condition, String keyword, String startDate, String endDate, User user) {
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+
+        if (startDate != null && !startDate.isBlank()) {
+            startDateTime = LocalDate.parse(startDate).atStartOfDay();
+        }
+        if (endDate != null && !endDate.isBlank()) {
+            endDateTime = LocalDate.parse(endDate).plusDays(1).atStartOfDay();
+        }
+
+        List<NotificationEntity> notificationEntityList = notificationRepository.searchNotifications(condition, keyword, startDateTime, endDateTime);
+
+        List<NotificationDto> notifications = new ArrayList<>();
+        for (NotificationEntity notificationEntity : notificationEntityList) {
+            BoardEntity boardEntity = notificationEntity.getBoard();
+            NotificationDto notificationDto = new NotificationDto(
+                    notificationEntity.getNotificationNo(),
+                    boardEntity.getTitle(),
+                    boardEntity.getUser().getUserName(),
+                    boardEntity.getRegDate(),
+                    boardEntity.getViewCnt()
+            );
+            notifications.add(notificationDto);
+        }
+        return new NotificationListResponseDto(notifications, isAdmin(user));
     }
 }

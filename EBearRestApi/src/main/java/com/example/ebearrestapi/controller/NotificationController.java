@@ -40,4 +40,15 @@ public class NotificationController {
     public void update(@PathVariable Long notificationNo, @RequestBody BoardDto boardDto) {
         notificationService.update(notificationNo, boardDto);
     }
+
+    @GetMapping("/search")
+    public NotificationListResponseDto search(
+            @RequestParam(required = false) String condition,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @AuthenticationPrincipal User user
+    ) {
+        return notificationService.search(condition, keyword, startDate, endDate, user);
+    }
 }
