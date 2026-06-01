@@ -4,9 +4,7 @@ import com.example.ebearrestapi.dto.request.OrderDto;
 import com.example.ebearrestapi.dto.request.OrderSaveReqDto;
 import com.example.ebearrestapi.dto.response.*;
 import com.example.ebearrestapi.entity.*;
-import com.example.ebearrestapi.etc.OrderPaymentType;
 import com.example.ebearrestapi.etc.OrderStatus;
-import com.example.ebearrestapi.etc.PaymentStatus;
 import com.example.ebearrestapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,14 +12,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +71,7 @@ public class OrderService {
         UserEntity newUser = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
 
         OrderPaymentEntity newOrderPayment = orderPaymentRepository.save(OrderPaymentEntity.builder()
+                .orderPaymentId(UUID.randomUUID().toString())
                 .orderStatus(OrderStatus.PAYMENT_WAIT)
                 .deliveryAddr(orderDto.getAddress())
                 .tel(orderDto.getTel())
@@ -98,7 +94,7 @@ public class OrderService {
         }
 
         return OrderResultDto.builder()
-                .orderPaymentId(OrderPaymentType.TYPE.getPrefix() + newOrderPayment.getOrderPaymentId().toString())
+                .orderPaymentId(newOrderPayment.getOrderPaymentId())
                 .build();
     }
 
