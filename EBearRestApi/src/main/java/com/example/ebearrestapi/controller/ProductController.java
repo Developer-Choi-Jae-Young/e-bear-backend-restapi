@@ -32,8 +32,17 @@ public class ProductController {
     public ResponseEntity<?> listProduct(Pageable pageable,
                                          @RequestParam(value = "type", required = false) String type,
                                          @RequestParam(value = "keyword", required = false) String keyword,
+                                         @RequestParam(value = "categoryId", required = false) Long categoryId) {
+        ProductCategoryResponseDto productCategoryResponseDto = productService.listProduct(pageable, type, keyword, categoryId);
+        return ResponseEntity.status(HttpStatus.OK).body(productCategoryResponseDto);
+    }
+
+    @GetMapping("/list/admin")
+    public ResponseEntity<?> listProductAdmin(Pageable pageable,
+                                         @RequestParam(value = "type", required = false) String type,
+                                         @RequestParam(value = "keyword", required = false) String keyword,
                                          @AuthenticationPrincipal User user) {
-        List<ProductListResultDto> productList = productService.listProduct(pageable, user, type, keyword);
+        List<ProductListResultDto> productList = productService.listProductAdmin(pageable, user, type, keyword);
         return ResponseEntity.status(HttpStatus.OK).body(productList);
     }
 

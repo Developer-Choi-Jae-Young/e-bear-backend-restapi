@@ -31,13 +31,13 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public List<ProductListResultDto> listProduct(Pageable pageable, User user, String type, String kw) {
+    public List<ProductListResultDto> listProductAdmin(Pageable pageable, User user, String type, String kw) {
         UserEntity userEntity = userRepository.findByUserId(user.getUsername()).orElseThrow(() -> new RuntimeException("User Not Found"));
 
         String searchType = (type == null || type.isEmpty()) ? "all" : type;
         String keyword = (kw == null) ? "" : kw;
 
-        Page<ProductEntity> productList = productRepository.searchWithFilter(userEntity, searchType, keyword, pageable);
+        Page<ProductEntity> productList = productRepository.searchWithFilterAdmin(userEntity, searchType, keyword, pageable);
         return productList.map(data -> ProductListResultDto.builder()
                 .productId(data.getProductNo())
                 .productName(data.getProductName())
@@ -45,6 +45,70 @@ public class ProductService {
                 .regDttm(data.getRegDate().toLocalDate())
                 .productStatus(data.getProductStatus().getName())
                 .build()).getContent();
+    }
+
+    @Transactional
+    public ProductCategoryResponseDto listProduct(Pageable pageable, String type, String kw, Long categoryId) {
+        String searchType = (type == null || type.isEmpty()) ? "all" : type;
+        String keyword = (kw == null) ? "" : kw;
+
+        String categoryName = "전체";
+        boolean hasCategory = false;
+        List<Long> targetCategoryIds = new ArrayList<>();
+
+        if (categoryId != null) {
+            CategoryEntity category = categoryRepository.findById(categoryId).orElse(null);
+            if (category != null) {
+                categoryName = category.getCategoryName();
+                targetCategoryIds = category.getAllDescendantIds();
+                hasCategory = true;
+            }
+        }
+
+        if (targetCategoryIds.isEmpty()) {
+            targetCategoryIds.add(0L);
+        }
+
+        Page<ProductEntity> productList = productRepository.searchWithFilter(hasCategory, targetCategoryIds, searchType, keyword, pageable);
+
+        List<ProductItemDto> items = productList.map(data -> {
+            String thumbnail = "";
+            String priceDisplay = "0";
+
+            if (data.getProductOptionList() != null && !data.getProductOptionList().isEmpty()) {
+                int minPrice = data.getProductOptionList().stream()
+                        .mapToInt(ProductOptionEntity::getProductOptionPrice)
+                        .min()
+                        .orElse(0);
+
+                int maxPrice = data.getProductOptionList().stream()
+                        .mapToInt(ProductOptionEntity::getProductOptionPrice)
+                        .max()
+                        .orElse(0);
+
+                if (minPrice == maxPrice) {
+                    priceDisplay = String.valueOf(minPrice);
+                } else {
+                    priceDisplay = minPrice + " ~ " + maxPrice;
+                }
+            }
+
+            return ProductItemDto.builder()
+                    .id(data.getProductNo())
+                    .imageUrl(thumbnail)
+                    .brand(data.getUser().getUserName())
+                    .name(data.getProductName())
+                    .price(priceDisplay)
+                    .salePercentage(null)
+                    .rating(null)
+                    .reviewCount(data.getReviewList() != null ? data.getReviewList().size() : 0)
+                    .build();
+        }).getContent();
+
+        return ProductCategoryResponseDto.builder()
+                .category(categoryName)
+                .products(items)
+                .build();
     }
 
     @Transactional

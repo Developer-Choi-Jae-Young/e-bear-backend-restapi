@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CategorySaveDto {
     private String categoryName;
     private Long parentId;
+    private String categoryValue;
 }

@@ -30,7 +30,7 @@ public class CategoryService {
                     .orElseThrow(() -> new RuntimeException("parent category not found"));
         }
 
-        CategoryEntity category = CategoryEntity.builder().categoryName(categorySaveDto.getCategoryName()).parent(parentCategory).build();
+        CategoryEntity category = CategoryEntity.builder().categoryName(categorySaveDto.getCategoryName()).categoryValue(categorySaveDto.getCategoryValue()).parent(parentCategory).build();
         CategoryEntity newCategory = categoryRepository.save(category);
 
         return CategorySaveResultDto.of(newCategory);

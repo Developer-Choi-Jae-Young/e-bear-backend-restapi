@@ -1,0 +1,948 @@
+-- 테이블 초기화가 필요한 경우 사용 (선택 사항)
+TRUNCATE TABLE CATEGORY;
+
+-- ==========================================
+-- 1. 대분류 (Depth 1, Root Categories)
+-- ==========================================
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(1, '브랜드패션', 'BRAND_FASHION', NULL),
+(2, '유아동', 'KIDS', NULL),
+(3, '식품·생필품', 'FOOD_DAILY', NULL),
+(4, '홈데코ㆍ문구ㆍ취미ㆍ반려', 'HOME_HOBBY_PET', NULL),
+(5, '컴퓨터·디지털·가전', 'DIGITAL_APPLIANCES', NULL),
+(6, '스포츠·건강·렌탈', 'SPORTS_HEALTH', NULL),
+(7, '자동차·공구', 'CAR_TOOLS', NULL),
+(8, '여행ㆍ도서·e쿠폰', 'TRAVEL_BOOKS', NULL);
+
+-- ==========================================
+-- 2. 중분류 및 소분류 (Depth 2 & 3)
+-- ==========================================
+
+-- [ 1. 브랜드패션 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(9, '패션의류', 'FASHION_CLOTHES', 1),
+(10, '잡화', 'FASHION_ACC', 1),
+(11, '뷰티', 'BEAUTY', 1);
+
+-- 1-1. 패션의류 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(12, '여성의류', 'WOMEN_CLOTHES', 9),
+(13, '남성의류', 'MEN_CLOTHES', 9),
+(14, '언더웨어', 'UNDERWEAR', 9),
+(15, '유아동의류', 'KIDS_CLOTHES', 9);
+
+-- 1-2. 잡화 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(16, '신발', 'SHOES', 10),
+(17, '가방/잡화', 'BAGS_ACC', 10),
+(18, '유아동신발/잡화', 'KIDS_SHOES_ACC', 10),
+(19, '쥬얼리/시계', 'JEWELRY_WATCH', 10),
+(20, '수입명품', 'LUXURY', 10);
+
+-- 1-3. 뷰티 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(21, '화장품/향수', 'COSMETICS_PERFUME', 11),
+(22, '바디/헤어', 'BODY_HAIR', 11);
+
+-- [ 2. 유아동 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(23, '유아동 의류', 'BABY_CLOTHES', 2),
+(24, '유아동 용품', 'BABY_GOODS', 2);
+
+-- 2-1. 유아동 의류 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(25, '신생아', 'NEWBORN', 23),
+(26, '유아', 'TODDLER', 23),
+(27, '키즈', 'KIDS_CHILD', 23);
+
+-- 2-2. 유아동 용품 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(28, '이유식', 'BABY_FOOD', 24),
+(29, '기저귀', 'DIAPERS', 24),
+(30, '수유용품', 'NURSING_GOODS', 24);
+
+-- [ 3. 식품·생필품 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(31, '식품', 'FOOD', 3),
+(32, '생필품', 'DAILY_NECESSITIES', 3);
+
+-- 3-1. 식품 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(33, '신선식품', 'FRESH_FOOD', 31),
+(34, '가공식품', 'PROCESSED_FOOD', 31),
+(35, '냉동식품', 'FROZEN_FOOD', 31);
+
+-- 3-2. 생필품 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(36, '세제', 'DETERGENT', 32),
+(37, '화장지', 'TISSUE', 32);
+
+-- [ 4. 홈데코ㆍ문구ㆍ취미ㆍ반려 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(38, '홈데코', 'HOME_DECO', 4),
+(39, '문구', 'STATIONERY', 4);
+
+-- 4-1. 홈데코 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(40, '침구', 'BEDDING', 38),
+(41, '커튼', 'CURTAIN', 38);
+
+-- 4-2. 문구 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(42, '필기구', 'WRITING_INSTRUMENTS', 39),
+(43, '다이어리', 'DIARY', 39);
+
+-- [ 5. 컴퓨터·디지털·가전 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(44, '컴퓨터', 'COMPUTER', 5),
+(45, '디지털', 'DIGITAL', 5),
+(46, '가전', 'APPLIANCES', 5);
+
+-- 5-1. 컴퓨터 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(47, '노트북', 'LAPTOP', 44),
+(48, '데스크탑', 'DESKTOP', 44);
+
+-- 5-2. 디지털 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(49, '스마트폰', 'SMARTPHONE', 45),
+(50, '태블릿', 'TABLET', 45);
+
+-- 5-3. 가전 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(51, 'TV', 'TV', 46),
+(52, '냉장고', 'REFRIGERATOR', 46);
+
+-- [ 6. 스포츠·건강·렌탈 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(53, '스포츠', 'SPORTS', 6),
+(54, '건강', 'HEALTH', 6);
+
+-- 6-1. 스포츠 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(55, '운동화', 'SPORTS_SHOES', 53),
+(56, '운동복', 'SPORTS_WEAR', 53);
+
+-- 6-2. 건강 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(57, '건강식품', 'HEALTH_FOOD', 54),
+(58, '운동기구', 'FITNESS_EQUIPMENT', 54);
+
+-- [ 7. 자동차·공구 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(59, '자동차용품', 'CAR_ACCESSORIES', 7),
+(60, '공구', 'TOOLS', 7);
+
+-- 7-1. 자동차용품 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(61, '차량용품', 'CAR_GOODS', 59),
+(62, '모터오일', 'MOTOR_OIL', 59);
+
+-- 7-2. 공구 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(63, '전동공구', 'POWER_TOOLS', 60),
+(64, '수동공구', 'HAND_TOOLS', 60);
+
+-- [ 8. 여행ㆍ도서·e쿠폰 ] 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(65, '여행', 'TRAVEL', 8),
+(66, '도서', 'BOOKS', 8);
+
+-- 8-1. 여행 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(67, '항공권', 'FLIGHT_TICKET', 65),
+(68, '호텔', 'HOTEL', 65);
+
+-- 8-2. 도서 하위
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+(69, '도서', 'BOOK_ITEM', 66),
+(70, 'e북', 'EBOOK', 66);
+
+-- ==========================================
+-- 3. 세분류 (Depth 4) 서브 카테고리 전체 추가 스크립트
+-- ==========================================
+
+-- [ 1-1. 패션의류 하위 (parent: 12, 13, 14, 15) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 여성의류 (12)
+(200, '상의', 'WOMEN_TOPS', 12),
+(201, '하의', 'WOMEN_BOTTOMS', 12),
+(202, '원피스', 'WOMEN_DRESSES', 12),
+(203, '아우터', 'WOMEN_OUTER', 12),
+-- 남성의류 (13)
+(204, '상의', 'MEN_TOPS', 13),
+(205, '하의', 'MEN_BOTTOMS', 13),
+(206, '아우터', 'MEN_OUTER', 13),
+(207, '정장', 'MEN_SUITS', 13),
+-- 언더웨어 (14)
+(208, '여성속옷', 'UNDERWEAR_WOMEN', 14),
+(209, '남성속옷', 'UNDERWEAR_MEN', 14),
+(210, '잠옷/홈웨어', 'HOMEWEAR', 14),
+-- 유아동의류 (15)
+(211, '상하복', 'KIDS_SETS', 15),
+(212, '우주복/바디수트', 'KIDS_BODYSUIT', 15),
+(213, '아우터', 'KIDS_OUTER', 15);
+
+-- [ 1-2. 잡화 하위 (parent: 16, 17, 18, 19, 20) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신발 (16)
+(214, '스니커즈/운동화', 'SNEAKERS', 16),
+(215, '구두/로퍼', 'DRESS_SHOES', 16),
+(216, '샌들/슬리퍼', 'SANDALS_SLIPPERS', 16),
+-- 가방/잡화 (17)
+(217, '여성가방', 'WOMEN_BAGS', 17),
+(218, '남성가방', 'MEN_BAGS', 17),
+(219, '지갑/벨트', 'WALLET_BELT', 17),
+(220, '모자', 'HATS', 17),
+-- 유아동신발/잡화 (18)
+(221, '아동화/운동화', 'KIDS_SHOES', 18),
+(222, '실내화/아쿠아슈즈', 'KIDS_INDOOR_SHOES', 18),
+(223, '아동가방/소풍가방', 'KIDS_BAGS', 18),
+-- 쥬얼리/시계 (19)
+(224, '귀걸이/목걸이', 'JEWELRY_NECKLACE', 19),
+(225, '반지/팔찌', 'JEWELRY_RING', 19),
+(226, '남성시계', 'WATCH_MEN', 19),
+(227, '여성시계', 'WATCH_WOMEN', 19),
+-- 수입명품 (20)
+(228, '명품가방', 'LUXURY_BAGS', 20),
+(229, '명품지갑', 'LUXURY_WALLETS', 20),
+(230, '명품의류/신발', 'LUXURY_CLOTHING', 20);
+
+-- [ 1-3. 뷰티 하위 (parent: 21, 22) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 화장품/향수 (21)
+(231, '스킨케어', 'SKINCARE', 21),
+(232, '메이크업', 'MAKEUP', 21),
+(233, '향수', 'PERFUME', 21),
+-- 바디/헤어 (22)
+(234, '바디워시/로션', 'BODY_WASH_LOTION', 22),
+(235, '샴푸/린스', 'SHAMPOO_CONDITIONER', 22),
+(236, '헤어스타일링', 'HAIR_STYLING', 22);
+
+-- [ 2-1. 유아동 의류 하위 (parent: 25, 26, 27) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신생아 (25)
+(237, '배냇저고리', 'NEWBORN_SHIRT', 25),
+(238, '속싸개/겉싸개', 'NEWBORN_WRAP', 25),
+(239, '신생아용품', 'NEWBORN_GOODS', 25),
+-- 유아 (26)
+(240, '유아 상하복', 'TODDLER_SETS', 26),
+(241, '유아 원피스', 'TODDLER_DRESS', 26),
+(242, '유아 아우터', 'TODDLER_OUTER', 26),
+-- 키즈 (27)
+(243, '여아의류', 'KIDS_GIRLS', 27),
+(244, '남아의류', 'KIDS_BOYS', 27),
+(245, '주니어의류', 'KIDS_JUNIOR', 27);
+
+-- [ 2-2. 유아동 용품 하위 (parent: 28, 29, 30) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 이유식 (28)
+(246, '초기/중기 이유식', 'BABY_FOOD_EARLY', 28),
+(247, '후기/완료기 이유식', 'BABY_FOOD_LATE', 28),
+(248, '아기과자/음료', 'BABY_SNACKS', 28),
+-- 기저귀 (29)
+(249, '밴드형 기저귀', 'DIAPERS_BAND', 29),
+(250, '팬티형 기저귀', 'DIAPERS_PANTY', 29),
+(251, '기저귀/물티슈 세트', 'DIAPERS_SET', 29),
+-- 수유용품 (30)
+(252, '젖병/젖꼭지', 'BABY_BOTTLE', 30),
+(253, '분유', 'MILK_POWDER', 30),
+(254, '수유쿠션/용품', 'NURSING_CUSHION', 30);
+
+-- [ 3-1. 식품 하위 (parent: 33, 34, 35) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신선식품 (33)
+(255, '과일', 'FRESH_FRUITS', 33),
+(256, '채소', 'FRESH_VEGETABLES', 33),
+(257, '정육/계란', 'FRESH_MEAT', 33),
+(258, '수산/건어물', 'FRESH_SEAFOOD', 33),
+-- 가공식품 (34)
+(259, '라면/면류', 'INSTANT_NOODLES', 34),
+(260, '통조림/즉석밥', 'CANNED_INSTANT_RICE', 34),
+(261, '과자/초콜릿', 'SNACKS_CHOCO', 34),
+-- 냉동식품 (35)
+(262, '만두/피자', 'FROZEN_DUMPLING_PIZZA', 35),
+(263, '볶음밥/돈까스', 'FROZEN_RICE_CUTLET', 35),
+(264, '냉동간식/디저트', 'FROZEN_DESSERT', 35);
+
+-- [ 3-2. 생필품 하위 (parent: 36, 37) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 세제 (36)
+(265, '세탁세제', 'LAUNDRY_DETERGENT', 36),
+(266, '섬유유연제', 'FABRIC_SOFTENER', 36),
+(267, '주방세제', 'DISH_DETERGENT', 36),
+-- 화장지 (37)
+(268, '두루마리 화장지', 'TOILET_PAPER_ROLL', 37),
+(269, '곽티슈/미용티슈', 'FACIAL_TISSUE', 37),
+(270, '물티슈', 'WET_WIPES', 37);
+
+-- [ 4-1. 홈데코 하위 (parent: 40, 41) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 침구 (40)
+(271, '이불/이불커버', 'BLANKET_COVER', 40),
+(272, '베개/베개커버', 'PILLOW_COVER', 40),
+(273, '토퍼/패드', 'TOPPER_PAD', 40),
+-- 커튼 (41)
+(274, '암막커튼', 'BLACKOUT_CURTAIN', 41),
+(275, '블라인드/롤스크린', 'BLIND_ROLL', 41),
+(276, '레이스/쉬폰커튼', 'LACE_CURTAIN', 41);
+
+-- [ 4-2. 문구 하위 (parent: 42, 43) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 필기구 (42)
+(277, '볼펜/형광펜', 'PENS_HIGHLIGHTERS', 42),
+(278, '연필/샤프', 'PENCILS', 42),
+(279, '마카/사인펜', 'MARKERS', 42),
+-- 다이어리 (43)
+(280, '다이어리/플래너', 'DIARY_PLANNER', 43),
+(281, '노트/수첩', 'NOTES', 43),
+(282, '달력/캘린더', 'CALENDAR', 43);
+
+-- [ 5-1. 컴퓨터 하위 (parent: 47, 48) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 노트북 (47)
+(283, '게이밍 노트북', 'LAPTOP_GAMING', 47),
+(284, '초경량 노트북', 'LAPTOP_LIGHT', 47),
+(285, '사무/인강용 노트북', 'LAPTOP_OFFICE', 47),
+-- 데스크탑 (48)
+(286, '브랜드PC', 'DESKTOP_BRAND', 48),
+(287, '조립PC', 'DESKTOP_CUSTOM', 48),
+(288, '모니터', 'MONITOR', 48);
+
+-- [ 5-2. 디지털 하위 (parent: 49, 50) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 스마트폰 (49)
+(289, '삼성 갤럭시', 'PHONE_GALAXY', 49),
+(290, '애플 아이폰', 'PHONE_IPHONE', 49),
+(291, '자급제폰/공기계', 'PHONE_UNLOCKED', 49),
+-- 태블릿 (50)
+(292, '아이패드', 'TABLET_IPAD', 50),
+(293, '갤럭시탭', 'TABLET_GALAXY', 50),
+(294, '태블릿 액세서리', 'TABLET_ACC', 50);
+
+-- [ 5-3. 가전 하위 (parent: 51, 52) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- TV (51)
+(295, 'OLED/QLED TV', 'TV_OLED_QLED', 51),
+(296, 'LED TV', 'TV_LED', 51),
+(297, '스마트TV', 'TV_SMART', 51),
+-- 냉장고 (52)
+(298, '양문형/4도어 냉장고', 'FRIDGE_DOUBLE', 52),
+(299, '일반형 냉장고', 'FRIDGE_NORMAL', 52),
+(300, '김치냉장고', 'FRIDGE_KIMCHI', 52);
+
+-- [ 6-1. 스포츠 하위 (parent: 55, 56) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 운동화 (55)
+(301, '런닝화', 'SHOES_RUNNING', 55),
+(302, '워킹화', 'SHOES_WALKING', 55),
+(303, '등산화/트레킹화', 'SHOES_HIKING', 55),
+-- 운동복 (56)
+(304, '요가/필라테스복', 'WEAR_YOGA', 56),
+(305, '헬스/트레이닝복', 'WEAR_TRAINING', 56),
+(306, '골프웨어', 'WEAR_GOLF', 56);
+
+-- [ 6-2. 건강 하위 (parent: 57, 58) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 건강식품 (57)
+(307, '비타민/미네랄', 'HEALTH_VITAMIN', 57),
+(308, '홍삼/인삼', 'HEALTH_GINSENG', 57),
+(309, '건강즙/건강음료', 'HEALTH_JUICE', 57),
+-- 운동기구 (58)
+(310, '런닝머신/싸이클', 'EQUIP_TREADMILL', 58),
+(311, '덤벨/바벨', 'EQUIP_DUMBBELL', 58),
+(312, '요가매트/소품', 'EQUIP_YOGAMAT', 58);
+
+-- [ 7-1. 자동차용품 하위 (parent: 61, 62) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 차량용품 (61)
+(313, '세차용품', 'CAR_WASH', 61),
+(314, '방향제/디퓨저', 'CAR_AIR_FRESHENER', 61),
+(315, '스마트폰 거치대', 'CAR_PHONE_HOLDER', 61),
+-- 모터오일 (62)
+(316, '엔진오일', 'OIL_ENGINE', 62),
+(317, '브레이크액', 'OIL_BRAKE', 62),
+(318, '미션오일', 'OIL_TRANSMISSION', 62);
+
+-- [ 7-2. 공구 하위 (parent: 63, 64) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 전동공구 (63)
+(319, '전동드릴', 'TOOL_DRILL', 63),
+(320, '전동드라이버', 'TOOL_DRIVER', 63),
+(321, '그라인더', 'TOOL_GRINDER', 63),
+-- 수동공구 (64)
+(322, '드라이버/렌치', 'TOOL_WRENCH', 64),
+(323, '망치/톱', 'TOOL_HAMMER_SAW', 64),
+(324, '공구함/세트', 'TOOL_BOX', 64);
+
+-- [ 8-1. 여행 하위 (parent: 67, 68) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 항공권 (67)
+(325, '국내 항공권', 'FLIGHT_DOMESTIC', 67),
+(326, '아시아 항공권', 'FLIGHT_ASIA', 67),
+(327, '미주/유럽 항공권', 'FLIGHT_GLOBAL', 67),
+-- 호텔 (68)
+(328, '국내호텔/리조트', 'HOTEL_DOMESTIC', 68),
+(329, '해외호텔', 'HOTEL_OVERSEAS', 68),
+(330, '펜션/풀빌라', 'PENSION_VILLA', 68);
+
+-- [ 8-2. 도서 하위 (parent: 69, 70) ]
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 도서 (69)
+(331, '소설/에세이', 'BOOK_NOVEL_ESSAY', 69),
+(332, '인문/역사', 'BOOK_HUMANITIES', 69),
+(333, '자기계발', 'BOOK_SELF_HELP', 69),
+-- e북 (70)
+(334, 'e북 소설', 'EBOOK_NOVEL', 70),
+(335, 'e북 만화', 'EBOOK_COMIC', 70),
+(336, 'e북 자기계발', 'EBOOK_SELF_HELP', 70);
+
+-- ==========================================
+-- 4. 세세분류 (Depth 5) 카테고리 전체 추가 스크립트
+-- 부모 ID: 200 ~ 336
+-- ==========================================
+
+-- ------------------------------------------
+-- [ 브랜드패션 / 패션의류 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 여성의류 > 상의 (200)
+(400, '반팔 티셔츠', 'WOMEN_TOPS_SHORT', 200),
+(401, '긴팔/맨투맨', 'WOMEN_TOPS_LONG', 200),
+(402, '블라우스/셔츠', 'WOMEN_TOPS_SHIRT', 200),
+-- 여성의류 > 하의 (201)
+(403, '청바지/데님', 'WOMEN_BOTTOMS_JEANS', 201),
+(404, '슬랙스/정장바지', 'WOMEN_BOTTOMS_SLACKS', 201),
+(405, '스커트/치마', 'WOMEN_BOTTOMS_SKIRT', 201),
+-- 여성의류 > 원피스 (202)
+(406, '미니/미디 원피스', 'WOMEN_DRESSES_MINI', 202),
+(407, '롱/맥시 원피스', 'WOMEN_DRESSES_LONG', 202),
+(408, '투피스 세트', 'WOMEN_DRESSES_SET', 202),
+-- 여성의류 > 아우터 (203)
+(409, '가디건/베스트', 'WOMEN_OUTER_CARDIGAN', 203),
+(410, '자켓/코트', 'WOMEN_OUTER_COAT', 203),
+(411, '패딩/점퍼', 'WOMEN_OUTER_PADDING', 203),
+
+-- 남성의류 > 상의 (204)
+(412, '반팔/민소매', 'MEN_TOPS_SHORT', 204),
+(413, '맨투맨/후드', 'MEN_TOPS_HOOD', 204),
+(414, '셔츠/남방', 'MEN_TOPS_SHIRT', 204),
+-- 남성의류 > 하의 (205)
+(415, '청바지/데님', 'MEN_BOTTOMS_JEANS', 205),
+(416, '면바지/슬랙스', 'MEN_BOTTOMS_COTTON', 205),
+(417, '트레이닝/반바지', 'MEN_BOTTOMS_TRAINING', 205),
+-- 남성의류 > 아우터 (206)
+(418, '바람막이/점퍼', 'MEN_OUTER_JUMPER', 206),
+(419, '가디건/조끼', 'MEN_OUTER_CARDIGAN', 206),
+(420, '패딩/코트', 'MEN_OUTER_COAT', 206),
+-- 남성의류 > 정장 (207)
+(421, '정장세트', 'MEN_SUITS_SET', 207),
+(422, '정장자켓', 'MEN_SUITS_JACKET', 207),
+(423, '정장바지', 'MEN_SUITS_PANTS', 207),
+
+-- 언더웨어 > 여성속옷 (208)
+(424, '브라/브라탑', 'UNDERWEAR_W_BRA', 208),
+(425, '팬티/보정속옷', 'UNDERWEAR_W_PANTY', 208),
+(426, '브라팬티세트', 'UNDERWEAR_W_SET', 208),
+-- 언더웨어 > 남성속옷 (209)
+(427, '드로즈/사각팬티', 'UNDERWEAR_M_DRAWERS', 209),
+(428, '트렁크/삼각팬티', 'UNDERWEAR_M_TRUNK', 209),
+(429, '런닝/내복', 'UNDERWEAR_M_RUNNING', 209),
+-- 언더웨어 > 잠옷/홈웨어 (210)
+(430, '여성 잠옷', 'HOMEWEAR_WOMEN', 210),
+(431, '남성 잠옷', 'HOMEWEAR_MEN', 210),
+(432, '커플/수면잠옷', 'HOMEWEAR_COUPLE', 210),
+
+-- 유아동의류 > 상하복 (211)
+(433, '어린이집/등원룩', 'KIDS_SETS_CASUAL', 211),
+(434, '외출용 상하복', 'KIDS_SETS_FORMAL', 211),
+(435, '실내복/내의', 'KIDS_SETS_INDOOR', 211),
+-- 유아동의류 > 우주복/바디수트 (212)
+(436, '반팔 바디수트', 'KIDS_BODYSUIT_SHORT', 212),
+(437, '긴팔 바디수트', 'KIDS_BODYSUIT_LONG', 212),
+(438, '방한 우주복', 'KIDS_BODYSUIT_WINTER', 212),
+-- 유아동의류 > 아우터 (213)
+(439, '바람막이/가디건', 'KIDS_OUTER_LIGHT', 213),
+(440, '경량패딩/조끼', 'KIDS_OUTER_VEST', 213),
+(441, '겨울패딩/코트', 'KIDS_OUTER_HEAVY', 213);
+
+
+-- ------------------------------------------
+-- [ 브랜드패션 / 잡화 및 뷰티 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신발 > 스니커즈/운동화 (214)
+(442, '런닝화/워킹화', 'SNEAKERS_RUNNING', 214),
+(443, '캔버스/단화', 'SNEAKERS_CANVAS', 214),
+(444, '어글리슈즈', 'SNEAKERS_UGLY', 214),
+-- 신발 > 구두/로퍼 (215)
+(445, '여성 펌프스/힐', 'DRESS_SHOES_HEEL', 215),
+(446, '남성 옥스포드', 'DRESS_SHOES_OXFORD', 215),
+(447, '남녀공용 로퍼', 'DRESS_SHOES_LOAFER', 215),
+-- 신발 > 샌들/슬리퍼 (216)
+(448, '여성 샌들/스트랩', 'SANDALS_WOMEN', 216),
+(449, '남성 샌들/스포츠', 'SANDALS_MEN', 216),
+(450, '슬라이드/쪼리', 'SANDALS_SLIDE', 216),
+
+-- 가방/잡화 > 여성가방 (217)
+(451, '숄더/토트백', 'WOMEN_BAGS_TOTE', 217),
+(452, '크로스/미니백', 'WOMEN_BAGS_CROSS', 217),
+(453, '에코백/캔버스백', 'WOMEN_BAGS_ECO', 217),
+-- 가방/잡화 > 남성가방 (218)
+(454, '백팩', 'MEN_BAGS_BACKPACK', 218),
+(455, '크로스백/메신저백', 'MEN_BAGS_CROSS', 218),
+(456, '브리프케이스/클러치', 'MEN_BAGS_BRIEF', 218),
+-- 가방/잡화 > 지갑/벨트 (219)
+(457, '여성지갑', 'WALLET_WOMEN', 219),
+(458, '남성지갑/머니클립', 'WALLET_MEN', 219),
+(459, '남성/여성 벨트', 'BELT_ALL', 219),
+-- 가방/잡화 > 모자 (220)
+(460, '볼캡/야구모자', 'HATS_CAP', 220),
+(461, '버킷햇/벙거지', 'HATS_BUCKET', 220),
+(462, '비니/겨울모자', 'HATS_BEANIE', 220),
+
+-- 유아동신발/잡화 > 아동화/운동화 (221)
+(463, '여아 구두/단화', 'KIDS_SHOES_GIRLS', 221),
+(464, '남아 운동화/스니커즈', 'KIDS_SHOES_BOYS', 221),
+(465, '아동 부츠/장화', 'KIDS_SHOES_BOOTS', 221),
+-- 유아동신발/잡화 > 실내화/아쿠아슈즈 (222)
+(466, '학교 실내화', 'KIDS_INDOOR_SCHOOL', 222),
+(467, '유아 아쿠아슈즈', 'KIDS_INDOOR_AQUA', 222),
+(468, '털실내화/슬리퍼', 'KIDS_INDOOR_WINTER', 222),
+-- 유아동신발/잡화 > 아동가방/소풍가방 (223)
+(469, '초등학생 책가방', 'KIDS_BAGS_SCHOOL', 223),
+(470, '보조가방/신발주머니', 'KIDS_BAGS_SUB', 223),
+(471, '유아 소풍가방/미아방지', 'KIDS_BAGS_PICNIC', 223),
+
+-- 쥬얼리/시계 > 귀걸이/목걸이 (224)
+(472, '14K/18K 귀걸이', 'JEWELRY_GOLD_EAR', 224),
+(473, '은/실버 목걸이', 'JEWELRY_SILVER_NECK', 224),
+(474, '패션/진주 세트', 'JEWELRY_FASHION_SET', 224),
+-- 쥬얼리/시계 > 반지/팔찌 (225)
+(475, '커플링/예물반지', 'JEWELRY_RING_COUPLE', 225),
+(476, '패션반지', 'JEWELRY_RING_FASHION', 225),
+(477, '순금/18K 팔찌', 'JEWELRY_BRACELET', 225),
+-- 쥬얼리/시계 > 남성시계 (226)
+(478, '남성 메탈시계', 'WATCH_MEN_METAL', 226),
+(479, '남성 가죽시계', 'WATCH_MEN_LEATHER', 226),
+(480, '남성 스포츠/전자시계', 'WATCH_MEN_SPORTS', 226),
+-- 쥬얼리/시계 > 여성시계 (227)
+(481, '여성 메탈/주얼리시계', 'WATCH_WOMEN_METAL', 227),
+(482, '여성 가죽시계', 'WATCH_WOMEN_LEATHER', 227),
+(483, '스마트워치 스트랩', 'WATCH_STRAP', 227),
+
+-- 수입명품 > 명품가방 (228)
+(484, '명품 숄더/토트백', 'LUXURY_BAGS_TOTE', 228),
+(485, '명품 크로스/백팩', 'LUXURY_BAGS_CROSS', 228),
+(486, '명품 클러치/파우치', 'LUXURY_BAGS_CLUTCH', 228),
+-- 수입명품 > 명품지갑 (229)
+(487, '명품 여성지갑', 'LUXURY_WALLETS_WOMEN', 229),
+(488, '명품 남성지갑', 'LUXURY_WALLETS_MEN', 229),
+(489, '명품 카드/명함지갑', 'LUXURY_WALLETS_CARD', 229),
+-- 수입명품 > 명품의류/신발 (230)
+(490, '명품 여성의류/신발', 'LUXURY_CLOTHING_WOMEN', 230),
+(491, '명품 남성의류/신발', 'LUXURY_CLOTHING_MEN', 230),
+(492, '명품 벨트/타이/소품', 'LUXURY_ACC', 230),
+
+-- 화장품/향수 > 스킨케어 (231)
+(493, '스킨/토너/미스트', 'SKINCARE_TONER', 231),
+(494, '로션/에멀젼/크림', 'SKINCARE_LOTION', 231),
+(495, '에센스/앰플/세럼', 'SKINCARE_ESSENCE', 231),
+-- 화장품/향수 > 메이크업 (232)
+(496, '파운데이션/쿠션', 'MAKEUP_BASE', 232),
+(497, '립스틱/틴트/립밤', 'MAKEUP_LIP', 232),
+(498, '아이섀도우/마스카라', 'MAKEUP_EYE', 232),
+-- 화장품/향수 > 향수 (233)
+(499, '여성향수', 'PERFUME_WOMEN', 233),
+(500, '남성향수', 'PERFUME_MEN', 233),
+(501, '니치/공용향수', 'PERFUME_UNISEX', 233),
+
+-- 바디/헤어 > 바디워시/로션 (234)
+(502, '바디워시/스크럽', 'BODYCARE_WASH', 234),
+(503, '바디로션/크림', 'BODYCARE_LOTION', 234),
+(504, '바디오일/미스트', 'BODYCARE_OIL', 234),
+-- 바디/헤어 > 샴푸/린스 (235)
+(505, '일반/퍼퓸샴푸', 'HAIRCARE_SHAMPOO', 235),
+(506, '탈모/두피샴푸', 'HAIRCARE_SCALP', 235),
+(507, '린스/트리트먼트', 'HAIRCARE_TREATMENT', 235),
+-- 바디/헤어 > 헤어스타일링 (236)
+(508, '헤어에센스/세럼', 'HAIRSTYLING_ESSENCE', 236),
+(509, '헤어스프레이/젤', 'HAIRSTYLING_SPRAY', 236),
+(510, '왁스/포마드', 'HAIRSTYLING_WAX', 236);
+
+
+-- ------------------------------------------
+-- [ 유아동 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신생아 (237~239)
+(511, '면/무냐무냐 배냇저고리', 'NEWBORN_SHIRT_COTTON', 237),
+(512, '오가닉 배냇저고리', 'NEWBORN_SHIRT_ORGANIC', 237),
+(513, '신생아 의류세트', 'NEWBORN_SHIRT_SET', 237),
+(514, '면/거즈 속싸개', 'NEWBORN_WRAP_INNER', 238),
+(515, '스와들업/스와들미', 'NEWBORN_WRAP_SWADDLE', 238),
+(516, '포근한 겉싸개', 'NEWBORN_WRAP_OUTER', 238),
+(517, '턱받이/침받이', 'NEWBORN_GOODS_BIB', 239),
+(518, '손싸개/발싸개', 'NEWBORN_GOODS_MITTEN', 239),
+(519, '모자/양말', 'NEWBORN_GOODS_CAP', 239),
+
+-- 유아 (240~242)
+(520, '실내복/내복', 'TODDLER_SETS_INDOOR', 240),
+(521, '외출용 상하세트', 'TODDLER_SETS_OUTDOOR', 240),
+(522, '트레이닝 세트', 'TODDLER_SETS_TRAINING', 240),
+(523, '민소매/반팔 원피스', 'TODDLER_DRESS_SHORT', 241),
+(524, '긴팔 원피스', 'TODDLER_DRESS_LONG', 241),
+(525, '드레스/튜튜', 'TODDLER_DRESS_PARTY', 241),
+(526, '바람막이/점퍼', 'TODDLER_OUTER_JUMPER', 242),
+(527, '조끼/가디건', 'TODDLER_OUTER_VEST', 242),
+(528, '겨울 패딩/코트', 'TODDLER_OUTER_WINTER', 242),
+
+-- 키즈 (243~245)
+(529, '여아 티셔츠/블라우스', 'KIDS_GIRLS_TOPS', 243),
+(530, '여아 바지/스커트', 'KIDS_GIRLS_BOTTOMS', 243),
+(531, '여아 아우터', 'KIDS_GIRLS_OUTER', 243),
+(532, '남아 티셔츠/셔츠', 'KIDS_BOYS_TOPS', 244),
+(533, '남아 바지/트레이닝', 'KIDS_BOYS_BOTTOMS', 244),
+(534, '남아 아우터', 'KIDS_BOYS_OUTER', 244),
+(535, '주니어 맨투맨/티셔츠', 'KIDS_JUNIOR_TOPS', 245),
+(536, '주니어 청바지/면바지', 'KIDS_JUNIOR_BOTTOMS', 245),
+(537, '주니어 아우터', 'KIDS_JUNIOR_OUTER', 245),
+
+-- 이유식 (246~248)
+(538, '초기 미음/퓨레', 'BABY_FOOD_EARLY_PUREE', 246),
+(539, '중기 묽은죽', 'BABY_FOOD_EARLY_PORRIDGE', 246),
+(540, '이유식 쌀/재료', 'BABY_FOOD_EARLY_INGREDIENT', 246),
+(541, '후기 진밥', 'BABY_FOOD_LATE_RICE', 247),
+(542, '완료기 반찬/국', 'BABY_FOOD_LATE_DISH', 247),
+(543, '유아 덮밥소스/카레', 'BABY_FOOD_LATE_SAUCE', 247),
+(544, '떡뻥/쌀과자', 'BABY_SNACKS_RICE', 248),
+(545, '동결건조 과일칩/요거트', 'BABY_SNACKS_FRUIT', 248),
+(546, '아기주스/보리차', 'BABY_SNACKS_JUICE', 248),
+
+-- 기저귀 (249~251)
+(547, '신생아/소형 밴드', 'DIAPERS_BAND_SMALL', 249),
+(548, '중형 밴드', 'DIAPERS_BAND_MEDIUM', 249),
+(549, '대형/특대형 밴드', 'DIAPERS_BAND_LARGE', 249),
+(550, '중형/대형 팬티', 'DIAPERS_PANTY_MEDIUM', 250),
+(551, '특대형/점보 팬티', 'DIAPERS_PANTY_LARGE', 250),
+(552, '밤기저귀/기능성 팬티', 'DIAPERS_PANTY_NIGHT', 250),
+(553, '출산선물/기프트세트', 'DIAPERS_SET_GIFT', 251),
+(554, '기저귀 체험팩', 'DIAPERS_SET_SAMPLE', 251),
+(555, '물티슈 대용량 박스', 'DIAPERS_SET_WIPES', 251),
+
+-- 수유용품 (252~254)
+(556, 'PP/PPSU 플라스틱 젖병', 'BABY_BOTTLE_PPSU', 252),
+(557, '유리/실리콘 젖병', 'BABY_BOTTLE_GLASS', 252),
+(558, '개월수별 젖꼭지', 'BABY_BOTTLE_NIPPLE', 252),
+(559, '국내분유', 'MILK_POWDER_KOREA', 253),
+(560, '수입분유', 'MILK_POWDER_IMPORT', 253),
+(561, '산양/특수분유', 'MILK_POWDER_SPECIAL', 253),
+(562, '수유쿠션/베개', 'NURSING_CUSHION_ITEM', 254),
+(563, '전동/수동 유축기', 'NURSING_BREAST_PUMP', 254),
+(564, '모유저장팩/수유패드', 'NURSING_STORAGE_PACK', 254);
+
+
+-- ------------------------------------------
+-- [ 식품·생필품 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 신선식품 (255~258)
+(565, '사과/배', 'FRESH_FRUITS_APPLE', 255),
+(566, '귤/한라봉/만감류', 'FRESH_FRUITS_CITRUS', 255),
+(567, '수입과일/열대과일', 'FRESH_FRUITS_IMPORT', 255),
+(568, '잎채소/쌈채소', 'FRESH_VEGE_LEAF', 256),
+(569, '뿌리채소/감자/양파', 'FRESH_VEGE_ROOT', 256),
+(570, '버섯/나물류', 'FRESH_VEGE_MUSHROOM', 256),
+(571, '국내산 소/돼지고기', 'FRESH_MEAT_DOMESTIC', 257),
+(572, '수입산 소/돼지고기', 'FRESH_MEAT_IMPORT', 257),
+(573, '닭/오리고기/계란', 'FRESH_MEAT_POULTRY', 257),
+(574, '생선/횟감', 'FRESH_SEAFOOD_FISH', 258),
+(575, '오징어/새우/조개류', 'FRESH_SEAFOOD_SHELL', 258),
+(576, '김/멸치/마른안주', 'FRESH_SEAFOOD_DRIED', 258),
+
+-- 가공식품 (259~261)
+(577, '봉지라면', 'INSTANT_NOODLES_PACK', 259),
+(578, '컵라면/사발면', 'INSTANT_NOODLES_CUP', 259),
+(579, '파스타/국수/당면', 'INSTANT_NOODLES_PASTA', 259),
+(580, '참치/연어 통조림', 'CANNED_INSTANT_TUNA', 260),
+(581, '스팸/햄/고기 통조림', 'CANNED_INSTANT_HAM', 260),
+(582, '즉석밥/국/찌개', 'CANNED_INSTANT_RICE', 260),
+(583, '스낵/감자칩/팝콘', 'SNACKS_CHOCO_SNACK', 261),
+(584, '비스킷/크래커/쿠키', 'SNACKS_CHOCO_COOKIE', 261),
+(585, '초콜릿/젤리/캔디', 'SNACKS_CHOCO_CANDY', 261),
+
+-- 냉동식품 (262~264)
+(586, '고기만두/김치만두', 'FROZEN_DUMP_MEAT', 262),
+(587, '군만두/물만두', 'FROZEN_DUMP_FRIED', 262),
+(588, '냉동피자/핫도그', 'FROZEN_DUMP_PIZZA', 262),
+(589, '냉동 볶음밥/주먹밥', 'FROZEN_RICE_FRIED', 263),
+(590, '돈까스/함박스테이크', 'FROZEN_RICE_CUTLET', 263),
+(591, '치킨너겟/텐더/가라아게', 'FROZEN_RICE_CHICKEN', 263),
+(592, '아이스크림/빙수', 'FROZEN_DESSERT_ICE', 264),
+(593, '냉동 빵/마카롱/케이크', 'FROZEN_DESSERT_BREAD', 264),
+(594, '붕어빵/호떡/핫케이크', 'FROZEN_DESSERT_KOREAN', 264),
+
+-- 생필품 (265~270)
+(595, '액체 세탁세제', 'LAUNDRY_DET_LIQUID', 265),
+(596, '가루 세탁세제', 'LAUNDRY_DET_POWDER', 265),
+(597, '캡슐/시트 세탁세제', 'LAUNDRY_DET_CAPSULE', 265),
+(598, '일반 대용량 유연제', 'FABRIC_SOFT_NORMAL', 266),
+(599, '고농축/퍼퓸 유연제', 'FABRIC_SOFT_HIGH', 266),
+(600, '건조기용 시트', 'FABRIC_SOFT_DRYER', 266),
+(601, '액상 주방세제', 'DISH_DET_LIQUID', 267),
+(602, '고체 주방비누', 'DISH_DET_SOLID', 267),
+(603, '식기세척기 전용세제', 'DISH_DET_MACHINE', 267),
+(604, '3겹 두루마리 화장지', 'TOILET_PAPER_3PLY', 268),
+(605, '4겹 두루마리 화장지', 'TOILET_PAPER_4PLY', 268),
+(606, '점보롤/업소용 화장지', 'TOILET_PAPER_JUMBO', 268),
+(607, '일반 곽티슈', 'FACIAL_TISSUE_NORMAL', 269),
+(608, '보습/로션 티슈', 'FACIAL_TISSUE_LOTION', 269),
+(609, '휴대용/여행용 티슈', 'FACIAL_TISSUE_PORTABLE', 269),
+(610, '아기용 물티슈', 'WET_WIPES_BABY', 270),
+(611, '일반 가정용 물티슈', 'WET_WIPES_NORMAL', 270),
+(612, '청소용/소독용 물티슈', 'WET_WIPES_CLEANING', 270);
+
+
+-- ------------------------------------------
+-- [ 홈데코ㆍ문구ㆍ취미ㆍ반려 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 침구/커튼 (271~276)
+(613, '차렵/사계절이불', 'BLANKET_COVER_FOUR', 271),
+(614, '구스/솜이불', 'BLANKET_COVER_GOOSE', 271),
+(615, '이불/매트리스 커버', 'BLANKET_COVER_ONLY', 271),
+(616, '솜/마이크로화이버 베개', 'PILLOW_COVER_COTTON', 272),
+(617, '메모리폼/경추 베개', 'PILLOW_COVER_MEMORY', 272),
+(618, '베개커버', 'PILLOW_COVER_ONLY', 272),
+(619, '메모리폼 토퍼', 'TOPPER_PAD_MEMORY', 273),
+(620, '라텍스 토퍼', 'TOPPER_PAD_LATEX', 273),
+(621, '침대패드/스프레드', 'TOPPER_PAD_SPREAD', 273),
+(622, '100% 암막커튼', 'BLACKOUT_CURTAIN_100', 274),
+(623, '생활 암막/컬러커튼', 'BLACKOUT_CURTAIN_NORMAL', 274),
+(624, '방한/방풍/방음 커튼', 'BLACKOUT_CURTAIN_WINTER', 274),
+(625, '우드/알루미늄 블라인드', 'BLIND_ROLL_WOOD', 275),
+(626, '콤비 블라인드', 'BLIND_ROLL_COMBI', 275),
+(627, '암막 롤스크린', 'BLIND_ROLL_SCREEN', 275),
+(628, '화이트 쉬폰커튼', 'LACE_CURTAIN_CHIFFON', 276),
+(629, '자수 레이스커튼', 'LACE_CURTAIN_EMBRO', 276),
+(630, '무지/린넨 속커튼', 'LACE_CURTAIN_INNER', 276),
+
+-- 문구/다이어리 (277~282)
+(631, '검정/단색 볼펜', 'PENS_HIGH_SINGLE', 277),
+(632, '3색/4색 다색볼펜', 'PENS_HIGH_MULTI', 277),
+(633, '형광펜', 'PENS_HIGH_LIGHTER', 277),
+(634, '연필/연필깎이', 'PENCILS_WOOD', 278),
+(635, '샤프/샤프심', 'PENCILS_MECHANICAL', 278),
+(636, '지우개/수정테이프', 'PENCILS_ERASER', 278),
+(637, '네임펜/유성마카', 'MARKERS_PERMANENT', 279),
+(638, '보드마카/분필', 'MARKERS_BOARD', 279),
+(639, '수성사인펜/색연필', 'MARKERS_COLOR', 279),
+(640, '만년 다이어리', 'DIARY_PLAN_EVER', 280),
+(641, '날짜형 다이어리', 'DIARY_PLAN_DATE', 280),
+(642, '스터디플래너/가계부', 'DIARY_PLAN_STUDY', 280),
+(643, '스프링노트', 'NOTES_SPRING', 281),
+(644, '무선/유선/모눈노트', 'NOTES_PLAIN', 281),
+(645, '포켓수첩/단어장', 'NOTES_POCKET', 281),
+(646, '탁상달력', 'CALENDAR_DESK', 282),
+(647, '벽걸이달력', 'CALENDAR_WALL', 282),
+(648, '일력/디데이달력', 'CALENDAR_DAILY', 282);
+
+
+-- ------------------------------------------
+-- [ 컴퓨터·디지털·가전 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 컴퓨터 (283~288)
+(649, '하이엔드 게이밍 노트북', 'LAPTOP_GAMING_HIGH', 283),
+(650, '가성비 게이밍 노트북', 'LAPTOP_GAMING_BUDGET', 283),
+(651, '크리에이터용 노트북', 'LAPTOP_GAMING_CREATOR', 283),
+(652, '1kg 미만 초경량', 'LAPTOP_LIGHT_SUB1', 284),
+(653, 'LG 그램 / 삼성 갤럭시북', 'LAPTOP_LIGHT_BRAND', 284),
+(654, '13~14인치 휴대용', 'LAPTOP_LIGHT_13INCH', 284),
+(655, '셀러론/펜티엄 급', 'LAPTOP_OFFICE_BASIC', 285),
+(656, 'Core i3 / Ryzen 3 급', 'LAPTOP_OFFICE_STANDARD', 285),
+(657, '15.6인치 대화면 가성비', 'LAPTOP_OFFICE_LARGE', 285),
+(658, '삼성전자 데스크탑', 'DESKTOP_BRAND_SAMSUNG', 286),
+(659, 'LG전자 데스크탑', 'DESKTOP_BRAND_LG', 286),
+(660, 'HP/DELL/레노버 데스크탑', 'DESKTOP_BRAND_GLOBAL', 286),
+(661, '사무/인강용 조립PC', 'DESKTOP_CUSTOM_OFFICE', 287),
+(662, '게이밍 조립PC', 'DESKTOP_CUSTOM_GAMING', 287),
+(663, '디자인/작업용 하이엔드 PC', 'DESKTOP_CUSTOM_PRO', 287),
+(664, '24인치 모니터', 'MONITOR_24', 288),
+(665, '27인치 모니터', 'MONITOR_27', 288),
+(666, '32인치 이상 / 와이드 모니터', 'MONITOR_32', 288),
+
+-- 스마트폰/태블릿 (289~294)
+(667, '갤럭시 S 시리즈', 'PHONE_GALAXY_S', 289),
+(668, '갤럭시 Z (폴드/플립)', 'PHONE_GALAXY_Z', 289),
+(669, '갤럭시 A/M 보급형', 'PHONE_GALAXY_A', 289),
+(670, '아이폰 프로/프로맥스', 'PHONE_IPHONE_PRO', 290),
+(671, '아이폰 일반/플러스', 'PHONE_IPHONE_NORMAL', 290),
+(672, '아이폰 SE/미니', 'PHONE_IPHONE_SE', 290),
+(673, '미개봉 새상품 (자급제)', 'PHONE_UNLOCKED_NEW', 291),
+(674, '리퍼비시/전시상품', 'PHONE_UNLOCKED_REFURB', 291),
+(675, '중고/가가폰', 'PHONE_UNLOCKED_USED', 291),
+(676, '아이패드 프로', 'TABLET_IPAD_PRO', 292),
+(677, '아이패드 에어', 'TABLET_IPAD_AIR', 292),
+(678, '아이패드 미니/기본형', 'TABLET_IPAD_MINI', 292),
+(679, '갤럭시탭 S 시리즈', 'TABLET_GALAXY_S', 293),
+(680, '갤럭시탭 A 시리즈', 'TABLET_GALAXY_A', 293),
+(681, '갤럭시탭 액티브/기타', 'TABLET_GALAXY_OTHER', 293),
+(682, '태블릿 케이스/파우치', 'TABLET_ACC_CASE', 294),
+(683, '보호필름/강화유리', 'TABLET_ACC_FILM', 294),
+(684, '터치펜(애플펜슬/S펜 등)', 'TABLET_ACC_PEN', 294),
+
+-- 가전 (295~300)
+(685, '50인치대 프리미엄 TV', 'TV_OLED_QLED_50', 295),
+(686, '60~70인치대 프리미엄 TV', 'TV_OLED_QLED_6070', 295),
+(687, '80인치 이상 초대형 TV', 'TV_OLED_QLED_80', 295),
+(688, '32~43인치 소형 LED TV', 'TV_LED_SMALL', 296),
+(689, '50인치대 일반 LED TV', 'TV_LED_MEDIUM', 296),
+(690, '60인치 이상 대형 LED TV', 'TV_LED_LARGE', 296),
+(691, '삼성/LG 스마트TV', 'TV_SMART_BRAND', 297),
+(692, '중소기업 스마트TV', 'TV_SMART_MID', 297),
+(693, '안드로이드/구글TV', 'TV_SMART_ANDROID', 297),
+(694, '4도어 (상냉장 하냉동)', 'FRIDGE_DOUBLE_4DOOR', 298),
+(695, '양문형 (좌우 2도어)', 'FRIDGE_DOUBLE_2DOOR', 298),
+(696, '얼음/정수기형 양문냉장고', 'FRIDGE_DOUBLE_ICE', 298),
+(697, '2도어 (상냉동 하냉장)', 'FRIDGE_NORMAL_2DOOR', 299),
+(698, '1도어 / 소형 원룸냉장고', 'FRIDGE_NORMAL_1DOOR', 299),
+(699, '미니 / 화장품 냉장고', 'FRIDGE_NORMAL_MINI', 299),
+(700, '스탠드형 김치냉장고', 'FRIDGE_KIMCHI_STAND', 300),
+(701, '뚜껑형 김치냉장고', 'FRIDGE_KIMCHI_LID', 300),
+(702, '소형/미니 김치냉장고', 'FRIDGE_KIMCHI_MINI', 300);
+
+
+-- ------------------------------------------
+-- [ 스포츠·건강·렌탈 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 스포츠 (301~306)
+(703, '쿠션/안정화', 'SHOES_RUNNING_CUSHION', 301),
+(704, '레이싱/마라톤화', 'SHOES_RUNNING_RACING', 301),
+(705, '트레일 런닝화', 'SHOES_RUNNING_TRAIL', 301),
+(706, '데일리 워킹화', 'SHOES_WALKING_DAILY', 302),
+(707, '다이어트/기능성 워킹화', 'SHOES_WALKING_DIET', 302),
+(708, '아쿠아/슬립온 워킹화', 'SHOES_WALKING_AQUA', 302),
+(709, '경등산화/트레킹화', 'SHOES_HIKING_LIGHT', 303),
+(710, '중/장거리용 중등산화', 'SHOES_HIKING_HEAVY', 303),
+(711, '여름용 아웃도어 샌들', 'SHOES_HIKING_SANDAL', 303),
+(712, '요가/필라테스 레깅스', 'WEAR_YOGA_LEGGINGS', 304),
+(713, '요가 상의/브라탑', 'WEAR_YOGA_TOP', 304),
+(714, '커버업/요가 가디건', 'WEAR_YOGA_COVERUP', 304),
+(715, '짐웨어 상의/나시', 'WEAR_TRAINING_TOP', 305),
+(716, '짐웨어 하의/조거팬츠', 'WEAR_TRAINING_BOTTOM', 305),
+(717, '트레이닝복 세트', 'WEAR_TRAINING_SET', 305),
+(718, '골프 티셔츠/니트', 'WEAR_GOLF_TOP', 306),
+(719, '골프 바지/스커트', 'WEAR_GOLF_BOTTOM', 306),
+(720, '골프 아우터/바람막이', 'WEAR_GOLF_OUTER', 306),
+
+-- 건강 (307~312)
+(721, '종합비타민/멀티비타민', 'HEALTH_VITAMIN_MULTI', 307),
+(722, '비타민C / 비타민D', 'HEALTH_VITAMIN_SINGLE', 307),
+(723, '칼슘/마그네슘/아연', 'HEALTH_VITAMIN_MINERAL', 307),
+(724, '홍삼정/농축액', 'HEALTH_GINSENG_EXTRACT', 308),
+(725, '홍삼스틱/파우치', 'HEALTH_GINSENG_STICK', 308),
+(726, '수삼/인삼/꿀절임', 'HEALTH_GINSENG_RAW', 308),
+(727, '과일즙/채소즙', 'HEALTH_JUICE_FRUIT', 309),
+(728, '녹용/쌍화/전통즙', 'HEALTH_JUICE_TRADITIONAL', 309),
+(729, '이온음료/에너지음료', 'HEALTH_JUICE_ENERGY', 309),
+(730, '가정용 접이식 런닝머신', 'EQUIP_TREADMILL_FOLD', 310),
+(731, '초경량 워킹패드', 'EQUIP_TREADMILL_PAD', 310),
+(732, '실내자전거/스핀바이크', 'EQUIP_TREADMILL_BIKE', 310),
+(733, '무게조절 다이얼 덤벨', 'EQUIP_DUMBBELL_ADJUST', 311),
+(734, '육각/크롬 고정형 덤벨', 'EQUIP_DUMBBELL_FIXED', 311),
+(735, '바벨봉/중량 원판세트', 'EQUIP_DUMBBELL_BARBELL', 311),
+(736, 'NBR/TPE 요가매트', 'EQUIP_YOGAMAT_MAT', 312),
+(737, '폼롤러/마사지볼', 'EQUIP_YOGAMAT_ROLLER', 312),
+(738, '짐볼/튜빙밴드/라텍스밴드', 'EQUIP_YOGAMAT_BALL', 312);
+
+
+-- ------------------------------------------
+-- [ 자동차·공구 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 자동차용품 (313~315)
+(739, '카샴푸/실내 클리너', 'CAR_WASH_SHAMPOO', 313),
+(740, '세차타월/스펀지/버킷', 'CAR_WASH_TOWEL', 313),
+(741, '유리막코팅제/광택제', 'CAR_WASH_COATING', 313),
+(742, '송풍구형 클립 방향제', 'CAR_AIR_VENT', 314),
+(743, '대시보드형/거치형 방향제', 'CAR_AIR_DASH', 314),
+(744, '룸미러 걸이형/스프레이', 'CAR_AIR_HANG', 314),
+(745, '자동센서 고속무선충전기', 'CAR_PHONE_AUTO', 315),
+(746, '마그네틱/맥세이프 거치대', 'CAR_PHONE_MAG', 315),
+(747, 'CD룸/송풍구/대시보드 거치대', 'CAR_PHONE_VENT', 315),
+
+-- 모터오일/공구 (316~324)
+(748, '가솔린 전용 엔진오일', 'OIL_ENGINE_GAS', 316),
+(749, '디젤/DPF 전용 엔진오일', 'OIL_ENGINE_DIESEL', 316),
+(750, '하이브리드/LPG 엔진오일', 'OIL_ENGINE_HYBRID', 316),
+(751, 'DOT3 규격 브레이크액', 'OIL_BRAKE_DOT3', 317),
+(752, 'DOT4 규격 브레이크액', 'OIL_BRAKE_DOT4', 317),
+(753, 'DOT5.1 고성능 브레이크액', 'OIL_BRAKE_DOT5', 317),
+(754, '자동변속기오일 (ATF)', 'OIL_TRANS_AUTO', 318),
+(755, '수동변속기오일 (MTF)', 'OIL_TRANS_MANUAL', 318),
+(756, '무단변속기오일 (CVT)', 'OIL_TRANS_CVT', 318),
+(757, '콘크리트용 해머드릴', 'TOOL_DRILL_HAMMER', 319),
+(758, '나사조임용 임팩트드릴', 'TOOL_DRILL_IMPACT', 319),
+(759, '천공작업용 코어드릴', 'TOOL_DRILL_CORE', 319),
+(760, '3.6V 미니 전동드라이버', 'TOOL_DRIVER_MINI', 320),
+(761, '7.2V~12V 권총형 드라이버', 'TOOL_DRIVER_PISTOL', 320),
+(762, '일자/스틱형 전동드라이버', 'TOOL_DRIVER_STICK', 320),
+(763, '금속절단용 앵글그라인더', 'TOOL_GRINDER_ANGLE', 321),
+(764, '연마용 탁상그라인더', 'TOOL_GRINDER_TABLE', 321),
+(765, '세밀작업용 핸드그라인더', 'TOOL_GRINDER_HAND', 321),
+(766, '십자/일자 수동드라이버', 'TOOL_WRENCH_DRIVER', 322),
+(767, '정밀/안경/시계 드라이버', 'TOOL_WRENCH_PRECISION', 322),
+(768, '몽키스패너/렌치류', 'TOOL_WRENCH_MONKEY', 322),
+(769, '장도리/고무/우레탄망치', 'TOOL_HAMMER_CLAW', 323),
+(770, '쇠톱/목공톱', 'TOOL_HAMMER_METAL', 323),
+(771, '휴대용 접톱/양날톱', 'TOOL_HAMMER_FOLD', 323),
+(772, '가정용 필수 공구세트', 'TOOL_BOX_HOME', 324),
+(773, '철제/플라스틱 다용도 공구함', 'TOOL_BOX_PLASTIC', 324),
+(774, '소형 부품함/공구가방', 'TOOL_BOX_BAG', 324);
+
+
+-- ------------------------------------------
+-- [ 여행ㆍ도서·e쿠폰 ] 하위
+-- ------------------------------------------
+INSERT INTO CATEGORY (category_no, category_name, category_value, parent_category_no) VALUES
+-- 여행 (325~330)
+(775, '제주도 항공권', 'FLIGHT_DOM_JEJU', 325),
+(776, '김포/부산 편도항공권', 'FLIGHT_DOM_GMP', 325),
+(777, '기타 지방공항 국내선', 'FLIGHT_DOM_OTHER', 325),
+(778, '일본 전지역 항공권', 'FLIGHT_ASIA_JAPAN', 326),
+(779, '동남아/대만 휴양지 항공권', 'FLIGHT_ASIA_SEA', 326),
+(780, '중국/홍콩/마카오 항공권', 'FLIGHT_ASIA_CHINA', 326),
+(781, '미국/캐나다/하와이 항공권', 'FLIGHT_GLB_NA', 327),
+(782, '서유럽/동유럽 항공권', 'FLIGHT_GLB_EU', 327),
+(783, '호주/뉴질랜드/괌 항공권', 'FLIGHT_GLB_OC', 327),
+(784, '제주 특급호텔/리조트', 'HOTEL_DOM_JEJU', 328),
+(785, '서울/수도권 호캉스', 'HOTEL_DOM_SEOUL', 328),
+(786, '강원/부산 오션뷰 호텔', 'HOTEL_DOM_OCEAN', 328),
+(787, '일본/대만/아시아 시티호텔', 'HOTEL_OVS_ASIA', 329),
+(788, '동남아 최고급 풀빌라/리조트', 'HOTEL_OVS_SEA', 329),
+(789, '미주/유럽 주요도시 숙소', 'HOTEL_OVS_GLB', 329),
+(790, '독채/개별수영장 풀빌라', 'PENSION_VILLA_POOL', 330),
+(791, '바베큐/스파 펜션', 'PENSION_VILLA_SPA', 330),
+(792, '자연속 글램핑/카라반', 'PENSION_VILLA_CAMP', 330),
+
+-- 도서/e북 (331~336)
+(793, '한국 창작소설', 'BOOK_NOVEL_KOR', 331),
+(794, '영미/유럽/일본 문학소설', 'BOOK_NOVEL_OVS', 331),
+(795, '힐링/공감/감성 에세이', 'BOOK_NOVEL_ESSAY', 331),
+(796, '기초/응용 심리학, 철학', 'BOOK_HUMAN_PHILO', 332),
+(797, '한국사/세계사 교양', 'BOOK_HUMAN_HISTORY', 332),
+(798, '미술/음악/건축/대중문화', 'BOOK_HUMAN_ART', 332),
+(799, '성공학/처세술/리더십', 'BOOK_SELF_SUCCESS', 333),
+(800, '인간관계/화술/대화법', 'BOOK_SELF_TALK', 333),
+(801, '주식/부동산 재테크/투자', 'BOOK_SELF_MONEY', 333),
+(802, 'e북 로맨스/로판/판타지', 'EBOOK_NOVEL_ROMANCE', 334),
+(803, 'e북 무협/SF소설', 'EBOOK_NOVEL_FANTASY', 334),
+(804, 'e북 베스트셀러 일반소설', 'EBOOK_NOVEL_GENERAL', 334),
+(805, 'e북 순정/로맨스 만화', 'EBOOK_COMIC_ROMANCE', 335),
+(806, 'e북 소년/액션/스포츠 만화', 'EBOOK_COMIC_ACTION', 335),
+(807, 'e북 웹툰 단행본/연재작', 'EBOOK_COMIC_WEBTOON', 335),
+(808, 'e북 재테크/경제경영', 'EBOOK_SELF_MONEY', 336),
+(809, 'e북 자전적 에세이/성공담', 'EBOOK_SELF_STORY', 336),
+(810, 'e북 시간/습관 관리법', 'EBOOK_SELF_HABIT', 336);

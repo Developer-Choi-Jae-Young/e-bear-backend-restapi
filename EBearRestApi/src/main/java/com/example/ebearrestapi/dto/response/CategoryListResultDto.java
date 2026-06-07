@@ -15,11 +15,13 @@ import java.util.List;
 public class CategoryListResultDto {
     private Long categoryId;
     private String categoryName;
+    private String categoryValue;
     private List<CategoryListResultDto> childCategory;
 
     public static CategoryListResultDto of(CategoryEntity category) {
         return category != null ? CategoryListResultDto.builder()
                 .categoryId(category.getCategoryNo())
+                .categoryValue(category.getCategoryValue())
                 .categoryName(category.getCategoryName())
                 .childCategory(category.getChildrenList().stream()
                         .map(CategoryListResultDto::of)

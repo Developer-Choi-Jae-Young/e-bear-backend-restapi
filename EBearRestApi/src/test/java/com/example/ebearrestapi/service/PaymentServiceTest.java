@@ -128,7 +128,7 @@ class PaymentServiceTest {
         dto.setAmount(10000);
         dto.setPaymentKey("toss_key_123");
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
 
         String tossResponseJson = "{\"status\": \"DONE\"}";
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
@@ -154,7 +154,7 @@ class PaymentServiceTest {
         dto.setOrderId("1");
         dto.setAmount(5000); // 임시엔 10000원임
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
 
         // when & then
         RuntimeException ex = assertThrows(RuntimeException.class, () -> paymentService.confirmPayment(dto));
@@ -172,7 +172,7 @@ class PaymentServiceTest {
 
         mockPayment.setUsedPoint(5000);
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
         when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
 
@@ -196,7 +196,7 @@ class PaymentServiceTest {
         dto.setAmount(10000);
         dto.setPaymentKey("toss_key_123");
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
         when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
 
@@ -221,7 +221,7 @@ class PaymentServiceTest {
         dto.setAmount(10000);
         dto.setPaymentKey("toss_key_123");
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
         when(restTemplate.postForEntity(contains("/confirm"), any(), eq(String.class)))
                 .thenReturn(new ResponseEntity<>("{\"status\": \"DONE\"}", HttpStatus.OK));
 
@@ -244,7 +244,7 @@ class PaymentServiceTest {
         dto.setOrderId("1");
         dto.setAmount(10000);
 
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
         when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid Key", "{\"message\":\"error\"}".getBytes(), null));
 
@@ -258,7 +258,7 @@ class PaymentServiceTest {
     void handleAbortedWebhook_Success_Rollback() {
         // given
         mockPayment.setPaymentStatus(PaymentStatus.READY);
-        when(paymentRepository.findByOrderPayment_OrderPaymentId(1L)).thenReturn(Optional.of(mockPayment));
+        when(paymentRepository.findByOrderPayment_OrderPaymentId("1")).thenReturn(Optional.of(mockPayment));
 
         ProductOptionEntity option = mock(ProductOptionEntity.class);
         OrderItemEntity item = OrderItemEntity.builder().productOption(option).quantity(5).build();
