@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OrderPaymentRepository extends JpaRepository<OrderPaymentEntity, Long> {
+public interface OrderPaymentRepository extends JpaRepository<OrderPaymentEntity, String> {
     List<OrderPaymentEntity> findAllByOrderStatusAndCreatedAtBefore(OrderStatus status, LocalDateTime before);
     List<OrderPaymentEntity> findAllByOrderStatus(OrderStatus status);
 

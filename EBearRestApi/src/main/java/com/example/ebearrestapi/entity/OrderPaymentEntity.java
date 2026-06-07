@@ -18,8 +18,7 @@ import java.util.List;
 @Builder
 public class OrderPaymentEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderPaymentId;
+    private String orderPaymentId;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;

@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<PaymentEntity,Long> {
 
     // 주문번호로 결제 내역 찾기 (검증 및 웹훅 처리 시 사용)
-    Optional<PaymentEntity> findByOrderPayment_OrderPaymentId(Long orderPaymentId);
+    Optional<PaymentEntity> findByOrderPayment_OrderPaymentId(String orderPaymentId);
 
     Optional<PaymentEntity> findByOrderPayment(OrderPaymentEntity orderPayment);
 }

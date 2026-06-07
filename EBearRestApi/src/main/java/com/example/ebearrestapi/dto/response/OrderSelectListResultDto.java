@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 public class OrderSelectListResultDto {
     private Long paymentId;
-    private Long orderPaymentId;
+    private String orderPaymentId;
     private Long reviewId;
     private OrderStatus orderStatus;
     private List<ProductOptionDto> productOptions;

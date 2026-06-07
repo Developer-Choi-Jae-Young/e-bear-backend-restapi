@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class PaymentDto {
     private String paymentKey;          // 승인 후 채워짐
-    private Long orderPaymentId;        // 주문pk
+    private String orderPaymentId;        // 주문pk
     private PaymentStatus status;       // 결제 상태 (READY -> DONE)
     private PaymentType type;           // 결제 수단 (CARD 등)
     private LocalDateTime approvedAt;   //결제 완료 일시

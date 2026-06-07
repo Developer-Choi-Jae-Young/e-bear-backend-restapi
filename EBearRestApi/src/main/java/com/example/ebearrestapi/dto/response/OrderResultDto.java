@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class OrderResultDto {
-    private Long orderPaymentId;
+    private String orderPaymentId;
 }

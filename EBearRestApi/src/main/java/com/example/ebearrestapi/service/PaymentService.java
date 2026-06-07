@@ -37,7 +37,7 @@ public class PaymentService {
     private final StateCodeService stateCodeService;
 
     public void readyPayment(PaymentDto paymentDto) {
-        Long opId = paymentDto.getOrderPaymentId();
+        String opId = paymentDto.getOrderPaymentId();
 
         // 리액트에서 보낸 paymentAmount는 무시하고, DB에서 직접 계산
         // TODO: orderPaymentRepository.getOrderItems()를 순회하며 orderPaymentRepository에서 가격을 가져와 (가격*수량) 합산
@@ -48,7 +48,7 @@ public class PaymentService {
         List<OrderItemEntity> orderItems = orderItemRepository.findByOrderPayment(orderPayment);
 
         // 결제 금액 계산
-        int totalProductPrice = 100; // DB 조회 결과 상품 총액이 100원이라고 가정
+        int totalProductPrice = 0; // DB 조회 결과 상품 총액이 100원이라고 가정
         for (OrderItemEntity item : orderItems) {
             // ProductOptionEntity에 가격(productOptionPrice)이 있다고 가정 (이전 OrderService 참고)
             int itemPrice = item.getProductOption().getProductOptionPrice();
@@ -89,7 +89,7 @@ public class PaymentService {
 
     @Transactional
     public Object confirmPayment(PaymentConfirmDto paymentConfirmDto) {
-        Long opId = Long.valueOf(paymentConfirmDto.getOrderId());
+        String opId = paymentConfirmDto.getOrderId();
 
         // DB 주문 찾기
         PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
@@ -104,7 +104,7 @@ public class PaymentService {
         String encodedAuthKey = Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(encodedAuthKey);
+        headers.set("Authorization", "Basic " + encodedAuthKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 토스 서버로 보낼 JSON body 데이터
@@ -167,13 +167,14 @@ public class PaymentService {
                             cancelTossPayment(paymentConfirmDto.getPaymentKey(), "쿠폰 소유자 불일치");
                             throw new RuntimeException("본인 소유의 쿠폰이 아니므로 결제가 자동 취소되었습니다.");
                         }
-                    }
-                    if (myCoupon.isUsed()) {
-                        cancelTossPayment(paymentConfirmDto.getPaymentKey(), "이미 사용된 쿠폰");
-                        throw new RuntimeException("이미 사용 완료된 쿠폰이 포함되어 있어 결제가 취소되었습니다.");
-                    }
 
-                    myCoupon.use();
+                        if (myCoupon.isUsed()) {
+                            cancelTossPayment(paymentConfirmDto.getPaymentKey(), "이미 사용된 쿠폰");
+                            throw new RuntimeException("이미 사용 완료된 쿠폰이 포함되어 있어 결제가 취소되었습니다.");
+                        }
+
+                        myCoupon.use();
+                    }
                 }
 
                 //최종 결제 객체에 데이터 넣음
@@ -222,7 +223,7 @@ public class PaymentService {
     }
 
     public Map<String, Object> getPaymentDetails(String orderPaymentId) {
-        Long opId = Long.valueOf(orderPaymentId);
+        String opId = orderPaymentId;
 
         PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
                 .orElseThrow(() -> new RuntimeException("해당 주문을 찾을 수 없습니다."));
@@ -239,9 +240,8 @@ public class PaymentService {
 
     @Transactional
     public void handleAbortedWebhook(String orderId) {
-        Long opId = Long.valueOf(orderId);
         // orderId로 주문 내역 찾음
-        PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(opId)
+        PaymentEntity payment = paymentRepository.findByOrderPayment_OrderPaymentId(orderId)
                 .orElseThrow(() -> new RuntimeException("해당 주문을 찾을 수 없습니다."));
 
         // 현재 상태가 READY인 경우에만 ABORTED로 변경

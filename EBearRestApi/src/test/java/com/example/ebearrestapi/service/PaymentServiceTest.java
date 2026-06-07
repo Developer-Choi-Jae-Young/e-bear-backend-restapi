@@ -56,7 +56,7 @@ class PaymentServiceTest {
                 .build();
 
         mockOrderPayment = OrderPaymentEntity.builder()
-                .orderPaymentId(1L)
+                .orderPaymentId("1")
                 .user(mockUser)
                 .paymentList(new ArrayList<>())
                 .build();
@@ -76,7 +76,7 @@ class PaymentServiceTest {
     void readyPayment_Success() {
         // given
         PaymentDto paymentDto = new PaymentDto();
-        paymentDto.setOrderPaymentId(1L);
+        paymentDto.setOrderPaymentId("1");
         paymentDto.setType(PaymentType.CARD);
         paymentDto.setUsePoint(1000);
 
@@ -88,7 +88,7 @@ class PaymentServiceTest {
                 .quantity(2) // 개수가 2개
                 .build();
 
-        when(orderPaymentRepository.findById(1L)).thenReturn(Optional.of(mockOrderPayment));
+        when(orderPaymentRepository.findById("1")).thenReturn(Optional.of(mockOrderPayment));
         when(orderItemRepository.findByOrderPayment(mockOrderPayment)).thenReturn(List.of(item));
 
         // when
@@ -111,8 +111,8 @@ class PaymentServiceTest {
     void readyPayment_Fail_OrderNotFound() {
         // given
         PaymentDto paymentDto = new PaymentDto();
-        paymentDto.setOrderPaymentId(99L); //이런 주문id 없음
-        when(orderPaymentRepository.findById(99L)).thenReturn(Optional.empty());
+        paymentDto.setOrderPaymentId("99"); //이런 주문id 없음
+        when(orderPaymentRepository.findById("99")).thenReturn(Optional.empty());
 
         // when & then
         // 없으니 runtime 에러 나는지 확인
