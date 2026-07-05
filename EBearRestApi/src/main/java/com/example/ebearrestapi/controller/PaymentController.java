@@ -4,6 +4,8 @@ import com.example.ebearrestapi.dto.request.PaymentConfirmDto;
 import com.example.ebearrestapi.dto.request.PaymentDto;
 import com.example.ebearrestapi.dto.request.TossWebhookDto;
 import com.example.ebearrestapi.dto.request.UserDto;
+import com.example.ebearrestapi.dto.response.PaymentDetailsDto;
+import com.example.ebearrestapi.exception.PaymentException;
 import com.example.ebearrestapi.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,11 @@ public class PaymentController {
         try {
             Object result = paymentService.confirmPayment(paymentConfirmDto);
             return ResponseEntity.ok(result);
+        }  catch (PaymentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", e.getErrorCode(),
+                    "message", e.getMessage()
+            ));
         } catch (IllegalArgumentException e) {
             // 토스 API 실패 사유 프론트로 전달 (400 상태코드)
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -44,12 +51,12 @@ public class PaymentController {
     }
 
     @GetMapping("/details")
-    public ResponseEntity<?> getPaymentDetails(@RequestParam String orderPaymentId) {
+    public ResponseEntity<PaymentDetailsDto> getPaymentDetails(@RequestParam String orderPaymentId) {
         try {
-            Map<String, Object> details = paymentService.getPaymentDetails(orderPaymentId);
+            PaymentDetailsDto details = paymentService.getPaymentDetails(orderPaymentId);
             return ResponseEntity.ok(details);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
