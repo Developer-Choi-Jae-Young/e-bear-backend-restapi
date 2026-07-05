@@ -33,31 +33,14 @@ public class PaymentController {
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmDto paymentConfirmDto) {
         // 토스 API 승인 및 DB 상태 변경(READY -> DONE) 처리
-        try {
-            Object result = paymentService.confirmPayment(paymentConfirmDto);
-            return ResponseEntity.ok(result);
-        }  catch (PaymentException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "code", e.getErrorCode(),
-                    "message", e.getMessage()
-            ));
-        } catch (IllegalArgumentException e) {
-            // 토스 API 실패 사유 프론트로 전달 (400 상태코드)
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            // 기타 서버 내부 에러
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
+        Object result = paymentService.confirmPayment(paymentConfirmDto);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/details")
     public ResponseEntity<PaymentDetailsDto> getPaymentDetails(@RequestParam String orderPaymentId) {
-        try {
-            PaymentDetailsDto details = paymentService.getPaymentDetails(orderPaymentId);
-            return ResponseEntity.ok(details);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+        PaymentDetailsDto details = paymentService.getPaymentDetails(orderPaymentId);
+        return ResponseEntity.ok(details);
     }
 
     @PostMapping("/webhook")

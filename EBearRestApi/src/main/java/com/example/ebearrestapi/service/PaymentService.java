@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestClientException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -100,10 +101,21 @@ public class PaymentService {
         try {
             // 토스 API 호출
             tossResponse = tossPaymentApi.confirm(confirmDto);
-        } catch (HttpStatusCodeException e) {
-            // 토스 API 에러 발생 시 결제 실패 상태로 변경
+        } catch (IllegalArgumentException e) {
+            // 토스 API 에러 발생 시 결제 실패 상태로 변경 (TossPaymentApi에서 매핑함)
             paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
-            throw new IllegalArgumentException(e.getResponseBodyAsString());
+            throw e;
+        } catch (RestClientException e) {
+            // 타임아웃 / 네트워크 장애 등 (시나리오 3)
+            log.error("Toss confirm API network timeout/error! orderId: {}", paymentConfirmDto.getOrderId(), e);
+            try {
+                // 망 취소(Network Cancel) 호출
+                tossPaymentApi.cancel(paymentConfirmDto.getPaymentKey(), "네트워크 타임아웃으로 인한 자동 취소");
+            } catch (Exception cancelEx) {
+                log.error("CRITICAL ERROR: Failed to cancel toss payment after confirm API timeout! orderId: {}", paymentConfirmDto.getOrderId(), cancelEx);
+            }
+            paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
+            throw new PaymentException("NETWORK_ERROR", "결제 서버와의 네트워크 오류로 인해 결제가 취소되었습니다.");
         }
 
         String tossStatus = tossResponse.get("status").asText(); // "DONE" 또는 "WAITING_FOR_DEPOSIT"
@@ -120,6 +132,7 @@ public class PaymentService {
             // 완료 처리 도중 예외 발생 시 결제 취소 API 호출
             try {
                 tossPaymentApi.cancel(paymentConfirmDto.getPaymentKey(), e.getMessage());
+                paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
             } catch (Exception cancelEx) {
                 // 결제 취소 API마저 실패한 경우
                  log.error("CRITICAL ERROR: Toss Cancel API failed after DB Complete Error! orderId: " + paymentConfirmDto.getOrderId(), cancelEx);
