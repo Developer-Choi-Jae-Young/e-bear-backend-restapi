@@ -30,5 +30,6 @@ public class FileEntity {
     @JoinColumn(name = "productNo", nullable = false)
     private ProductEntity product;
 
+    @Enumerated(EnumType.STRING)
     private FileType fileType;
 }
