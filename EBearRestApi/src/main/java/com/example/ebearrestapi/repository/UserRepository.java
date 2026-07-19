@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity,Integer> {
+public interface UserRepository extends JpaRepository<UserEntity,Long> {
     Optional<UserEntity> findByUserId(String userId);
 
     // 결제 로직에서 사용됨, 해당 Row에 DB 락 검

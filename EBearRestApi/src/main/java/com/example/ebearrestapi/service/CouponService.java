@@ -50,7 +50,7 @@ public class CouponService {
         masterCoupon.use();
 
         // 유저 정보 조회
-        UserEntity user = userRepository.getReferenceById(Math.toIntExact(userNo));
+        UserEntity user = userRepository.getReferenceById(userNo);
 
         // 유저 개인을 위한 새로운 쿠폰 발급
         CouponEntity userCoupon = CouponEntity.builder()
