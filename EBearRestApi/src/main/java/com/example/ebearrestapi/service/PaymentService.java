@@ -2,25 +2,22 @@ package com.example.ebearrestapi.service;
 
 import com.example.ebearrestapi.dto.request.PaymentConfirmDto;
 import com.example.ebearrestapi.dto.request.PaymentDto;
-import com.example.ebearrestapi.dto.request.TossConfirmDto;
 import com.example.ebearrestapi.dto.response.PaymentDetailsDto;
 import com.example.ebearrestapi.dto.response.PaymentProductDto;
 import com.example.ebearrestapi.entity.*;
 import com.example.ebearrestapi.etc.PaymentStatus;
-import com.example.ebearrestapi.etc.StateCode;
+import com.example.ebearrestapi.etc.PgProvider;
 import com.example.ebearrestapi.exception.PaymentException;
-import com.example.ebearrestapi.infra.toss.TossPaymentApi;
+import com.example.ebearrestapi.gateway.PaymentGateway;
+import com.example.ebearrestapi.gateway.PaymentGatewayRegistry;
+import com.example.ebearrestapi.gateway.dto.PaymentResponseDto;
 import com.example.ebearrestapi.repository.*;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -29,10 +26,11 @@ import java.util.*;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final TossPaymentApi tossPaymentApi;
     private final OrderPaymentRepository orderPaymentRepository; // 실제 가격 조회를 위해 필요
     private final OrderItemRepository orderItemRepository;
     private final PaymentTransactionService paymentTransactionService;
+    private final PgRoutingService pgRoutingService;
+    private final PaymentGatewayRegistry paymentGatewayRegistry;
 
     @Transactional
     public void readyPayment(PaymentDto paymentDto) {
@@ -68,11 +66,17 @@ public class PaymentService {
         //=> 변조 방지
         int safeFinalAmount = totalProductPrice - couponDiscount - usePoint;
 
+        PgProvider determinedPg = pgRoutingService.determineBestPg(
+                paymentDto.getType(),   // 사용자가 고른 결제수단 (CARD, TRANSFER 등)
+                "ALL"                   // 특정 카드사 구분 없이
+        );
+
         // 결제 정보 생성 (포인트 등은 임시)
         PaymentEntity payment = PaymentEntity.builder()
                 .paymentAmount(safeFinalAmount)                 //결제금액
                 .paymentStatus(PaymentStatus.READY)             //결제상태
                 .paymentType(paymentDto.getType())              //결제수단
+                .pgProvider(determinedPg)                       //PG사 결정
                 .usedPoint(usePoint)                            //임시 포인트 가격(나중에 사용자가 가지고 있는 포인트랑 검증 예정)
                 // .usedCouponId(null)                          // TODO: 쿠폰 ID 세팅
                 .orderPayment(orderPayment)                     // 연관된 주문 초기화
@@ -86,31 +90,24 @@ public class PaymentService {
 
     }
 
-    public Object confirmPayment(PaymentConfirmDto paymentConfirmDto) {
+    public void confirmPayment(PaymentConfirmDto paymentConfirmDto) {
         // 사전 검증 (DB 조회 트랜잭션 분리)
-        paymentTransactionService.preValidate(paymentConfirmDto);
+        PaymentEntity payment = paymentTransactionService.preValidate(paymentConfirmDto);
+        // PG 게이트웨이 결정
+        PgProvider pgProvider = paymentConfirmDto.getPgProvider();
+        // 해당 PG사에 알맞은 어댑터 획득
+        PaymentGateway gateway = paymentGatewayRegistry.getGateway(pgProvider);
+        PaymentResponseDto gatewayResponse;
 
-        // 토스 서버로 보낼 JSON body 데이터
-        TossConfirmDto confirmDto = TossConfirmDto.builder()
-                        .paymentKey(paymentConfirmDto.getPaymentKey())
-                        .orderId(paymentConfirmDto.getOrderId())
-                        .amount(paymentConfirmDto.getAmount())
-                        .build();
-
-        JsonNode tossResponse;
         try {
-            // 토스 API 호출
-            tossResponse = tossPaymentApi.confirm(confirmDto);
-        } catch (IllegalArgumentException e) {
-            // 토스 API 에러 발생 시 결제 실패 상태로 변경 (TossPaymentApi에서 매핑함)
-            paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
-            throw e;
+            // 해당 PG사 서버로 외부 API 호출 위임
+            gatewayResponse = gateway.confirm(paymentConfirmDto);
         } catch (RestClientException e) {
-            // 타임아웃 / 네트워크 장애 등 (시나리오 3)
-            log.error("Toss confirm API network timeout/error! orderId: {}", paymentConfirmDto.getOrderId(), e);
+            // 타임아웃 / 네트워크 장애 등
+            log.error("PG confirm API network timeout! orderId: {}", paymentConfirmDto.getOrderId(), e);
             try {
                 // 망 취소(Network Cancel) 호출
-                tossPaymentApi.cancel(paymentConfirmDto.getPaymentKey(), "네트워크 타임아웃으로 인한 자동 취소");
+                gateway.cancel(paymentConfirmDto.getPaymentKey(), "네트워크 타임아웃으로 인한 자동 취소");
             } catch (Exception cancelEx) {
                 log.error("CRITICAL ERROR: Failed to cancel toss payment after confirm API timeout! orderId: {}", paymentConfirmDto.getOrderId(), cancelEx);
             }
@@ -118,11 +115,11 @@ public class PaymentService {
             throw new PaymentException("NETWORK_ERROR", "결제 서버와의 네트워크 오류로 인해 결제가 취소되었습니다.");
         }
 
-        String tossStatus = tossResponse.get("status").asText(); // "DONE" 또는 "WAITING_FOR_DEPOSIT"
-
-        if (!"DONE".equals(tossStatus)) {
+        // PG사 결과 공통 검증
+        if (gatewayResponse == null || !gatewayResponse.isSuccess()) {
             paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
-            throw new PaymentException("UNKNOWN_PAYMENT_STATUS", "알 수 없는 결제 상태입니다: " + tossStatus);
+            String errorMsg = (gatewayResponse != null) ? gatewayResponse.getErrorMessage() : "알 수 없는 승인 실패";
+            throw new PaymentException("UNKNOWN_PAYMENT_STATUS", "결제가 승인되지 않았습니다. 사유: " + errorMsg);
         }
 
         // 결제 완료 처리 및 포인트/쿠폰 차감
@@ -131,7 +128,7 @@ public class PaymentService {
         } catch (Exception e) {
             // 완료 처리 도중 예외 발생 시 결제 취소 API 호출
             try {
-                tossPaymentApi.cancel(paymentConfirmDto.getPaymentKey(), e.getMessage());
+                gateway.cancel(gatewayResponse.getTransactionId(), e.getMessage());
                 paymentTransactionService.failPayment(paymentConfirmDto.getOrderId());
             } catch (Exception cancelEx) {
                 // 결제 취소 API마저 실패한 경우
@@ -140,7 +137,6 @@ public class PaymentService {
             throw e;
         }
 
-        return "success";
     }
 
     @Transactional(readOnly = true)

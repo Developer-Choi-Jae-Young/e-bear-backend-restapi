@@ -28,13 +28,14 @@ public class PaymentController {
                                         @AuthenticationPrincipal UserDto userDto) {
         paymentService.readyPayment(paymentDto);
         return ResponseEntity.ok().build();
+//        return ResponseEntity.ok(Map.of("pgProvider", pgProvider.name())); //나중에 다중 PG사 사용 시
     }
 
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmDto paymentConfirmDto) {
         // 토스 API 승인 및 DB 상태 변경(READY -> DONE) 처리
-        Object result = paymentService.confirmPayment(paymentConfirmDto);
-        return ResponseEntity.ok(result);
+        paymentService.confirmPayment(paymentConfirmDto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/details")
