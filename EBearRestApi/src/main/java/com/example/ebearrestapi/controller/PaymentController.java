@@ -4,6 +4,8 @@ import com.example.ebearrestapi.dto.request.PaymentConfirmDto;
 import com.example.ebearrestapi.dto.request.PaymentDto;
 import com.example.ebearrestapi.dto.request.TossWebhookDto;
 import com.example.ebearrestapi.dto.request.UserDto;
+import com.example.ebearrestapi.dto.response.PaymentDetailsDto;
+import com.example.ebearrestapi.exception.PaymentException;
 import com.example.ebearrestapi.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,31 +28,20 @@ public class PaymentController {
                                         @AuthenticationPrincipal UserDto userDto) {
         paymentService.readyPayment(paymentDto);
         return ResponseEntity.ok().build();
+//        return ResponseEntity.ok(Map.of("pgProvider", pgProvider.name())); //나중에 다중 PG사 사용 시
     }
 
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody PaymentConfirmDto paymentConfirmDto) {
         // 토스 API 승인 및 DB 상태 변경(READY -> DONE) 처리
-        try {
-            Object result = paymentService.confirmPayment(paymentConfirmDto);
-            return ResponseEntity.ok(result);
-        } catch (IllegalArgumentException e) {
-            // 토스 API 실패 사유 프론트로 전달 (400 상태코드)
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            // 기타 서버 내부 에러
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
+        paymentService.confirmPayment(paymentConfirmDto);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/details")
-    public ResponseEntity<?> getPaymentDetails(@RequestParam String orderPaymentId) {
-        try {
-            Map<String, Object> details = paymentService.getPaymentDetails(orderPaymentId);
-            return ResponseEntity.ok(details);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<PaymentDetailsDto> getPaymentDetails(@RequestParam String orderPaymentId) {
+        PaymentDetailsDto details = paymentService.getPaymentDetails(orderPaymentId);
+        return ResponseEntity.ok(details);
     }
 
     @PostMapping("/webhook")

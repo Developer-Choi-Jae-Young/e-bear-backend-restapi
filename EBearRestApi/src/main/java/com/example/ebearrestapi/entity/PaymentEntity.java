@@ -2,6 +2,7 @@ package com.example.ebearrestapi.entity;
 
 import com.example.ebearrestapi.etc.PaymentStatus;
 import com.example.ebearrestapi.etc.PaymentType;
+import com.example.ebearrestapi.etc.PgProvider;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,10 @@ public class PaymentEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentType paymentType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PgProvider pgProvider; // 서버단에서 어떤 pg사를 이용해야 되는지 결정
 
     // 실제 결제 승인 일시 (토스 API의 approvedAt 값)
     private LocalDateTime approvedAt;

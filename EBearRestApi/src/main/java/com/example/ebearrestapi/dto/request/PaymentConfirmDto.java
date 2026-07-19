@@ -1,5 +1,6 @@
 package com.example.ebearrestapi.dto.request;
 
+import com.example.ebearrestapi.etc.PgProvider;
 import lombok.Data;
 
 @Data
@@ -10,4 +11,6 @@ public class PaymentConfirmDto {
     private String orderId;
     // 사용자가 실제로 결제한 금액
     private Integer amount;
+    // PG사 타입
+    private PgProvider pgProvider;
 }
