@@ -2,7 +2,6 @@ package com.example.ebearrestapi.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "CART")
@@ -28,7 +27,11 @@ public class CartEntity {
     @JoinColumn(name = "productOptionNo")
     private ProductOptionEntity productOption;
 
-    private String delYn;
+    @Builder.Default
+    private String delYN = "N";
+
+    @Version
+    private Long version;
 
     public void increaseQuantity(int amount) {
         this.quantity += amount;
